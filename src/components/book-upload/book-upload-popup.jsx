@@ -9,9 +9,9 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  addToast
 } from "@heroui/react";
 import { fileUploadApi } from '@/utils/commonapi';
+import { toast } from 'react-hot-toast';
 
 // Yup validation schema
 const schema = yup.object().shape({
@@ -105,11 +105,9 @@ const BookUploadPopup = ({ isOpen, onOpenChange, onSubmit }) => {
     try {
       const response = await fileUploadApi(formData);
       if (response) {
-        addToast({
-          title: "File Upload.",
-          description: "file is upload success.",
-          color: "success",
-          variant:"solid"
+        toast.success('file is upload success.', {
+          duration: 3000,
+          position: 'top-right',
         });
         setIsSubmiting(false);
         onOpenChange();
