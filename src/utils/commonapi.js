@@ -10,4 +10,5 @@ export const bookEditApi = (id, data) => appAxios.put(`/api/books/${id}`, data);
 export const bookGetApi = () => appAxios.get('/api/books/');
 export const getAllUsers = () => appAxios.get('/api/users/');
 export const getChatApi = (data) => aiBaseAxios.post('/chat/', data);
+export const fileUploadApi = (data) => aiBaseAxios.post('/process/', data);
 

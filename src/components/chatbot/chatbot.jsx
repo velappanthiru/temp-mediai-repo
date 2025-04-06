@@ -94,17 +94,20 @@ const ChatbotComponent = () => {
                 >
                   <div>{chat.content}</div>
 
-                  {/* Display sources if they exist */}
-                  {chat.sources && chat.sources.length > 0 && (
+                  {/* {chat.sources && chat.sources.length > 0 && (
                     <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                       <p className="text-xs font-medium mb-1">Sources:</p>
-                      <ul className="text-xs list-disc pl-4">
+                      <ul className="text-xs list-disc pl-4 space-y-1">
                         {chat.sources.map((source, idx) => (
-                          <li key={idx}>{source}</li>
+                          <li key={idx}>
+                            <span className="font-semibold">ID:</span> {source.id},{" "}
+                            <span className="font-semibold">File:</span> {source.source},{" "}
+                            <span className="font-semibold">Similarity:</span> {source.similarity.toFixed(4)}
+                          </li>
                         ))}
                       </ul>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             ))}

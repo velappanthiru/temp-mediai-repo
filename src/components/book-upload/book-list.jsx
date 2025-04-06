@@ -7,6 +7,7 @@ import BreadcrumbsComponent from '../../layout-component/breadcrumbs';
 import { bookGetApi } from '@/utils/commonapi';
 import { toast } from 'react-hot-toast';
 import BookEditPopup from './book-edit';
+import BookUploadPopup from './book-upload-popup';
 
 const statusColorMap = {
   true: "success",
@@ -29,6 +30,7 @@ const BookList = () => {
   const pathname = usePathname();
   const [bookData, setBookData] = useState([]);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isOpenBookUploadPopup, setIsOpenBookUploadPopup] = useState(false);
   const [bookSingleData, setBookSingleData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   // Split the current path into segments and filter out empty strings
@@ -104,6 +106,10 @@ const BookList = () => {
   }
   const handleOnEditModal = (data) => {
     setIsOpenEditModal(!isOpenEditModal);
+  }
+
+  const handleBookUploadPopup = () => {
+    setIsOpenBookUploadPopup(!isOpenBookUploadPopup);
   }
 
   const renderCell = React.useCallback((item, columnKey) => {
@@ -283,8 +289,11 @@ const BookList = () => {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" size="sm" className="bg-black dark:bg-gray-600" endContent={<PlusIcon />} onPress={() => router.push('/super-admin/book-upload/add')}>
+            {/* <Button color="primary" size="sm" className="bg-black dark:bg-gray-600" endContent={<PlusIcon />} onPress={() => router.push('/super-admin/book-upload/add')}>
               Add New
+            </Button> */}
+            <Button color="primary" size="sm" className="bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)]" endContent={<PlusIcon />} onPress={handleBookUploadPopup}>
+              AI Agent
             </Button>
           </div>
         </div>
@@ -476,6 +485,10 @@ const BookList = () => {
       {
         isOpenEditModal && <BookEditPopup isEditModalOpen={isOpenEditModal} onEditOpenChange={handleOnEditModal} onEditModalClose={handleOnEditModal} data={bookSingleData} bookDetailsApi={handleGetBookData} />
       }
+      {
+        isOpenBookUploadPopup && <BookUploadPopup isOpen={isOpenBookUploadPopup} onOpenChange={handleBookUploadPopup}/>
+      }
+
     </>
   )
 }
