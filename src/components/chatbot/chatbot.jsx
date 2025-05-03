@@ -91,7 +91,7 @@ const ChatbotComponent = () => {
                         h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-3 mb-2" {...props} />,
                         h2: ({node, ...props}) => <h2 className="text-lg font-bold mt-3 mb-2" {...props} />,
                         h3: ({node, ...props}) => <h3 className="text-md font-bold mt-2 mb-1" {...props} />,
-                        p: ({node, ...props}) => <p className="mb-2" {...props} />,
+                        p: ({node, ...props}) => <p className={`${chat?.role === "user" ? "mb-0" : "mb-2"}`} {...props} />,
                         ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
                         ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
                         li: ({node, ...props}) => <li className="mb-1" {...props} />
