@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IoAttachSharp } from "react-icons/io5";
 import { CgArrowLongRight } from "react-icons/cg";
 import { getChatApi } from '@/utils/commonapi';
+import ReactMarkdown from 'react-markdown';
 
 const ChatbotComponent = () => {
   const [message, setMessage] = useState("");
@@ -20,10 +20,9 @@ const ChatbotComponent = () => {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!message.trim()) return;
-
-    // Add user message to chat history
-    const userMessage = { type: 'user', content: message };
-    setChatHistory(prev => [...prev, userMessage]);
+    const userMessage = message.trim();
+    // Update UI immediately for better UX
+    setChatHistory(prev => [...prev, { role: 'user', content: userMessage }]);
 
     // Clear input
     setMessage("");
@@ -35,19 +34,13 @@ const ChatbotComponent = () => {
         use_mistral_only: false
       });
 
-      if (response?.data?.response) {
-        // Add bot response to chat history
-        const botMessage = {
-          type: 'bot',
-          content: response.data.response,
-          sources: response.data.sources || []
-        };
-        setChatHistory(prev => [...prev, botMessage]);
+      if (response?.data?.messages) {
+        setChatHistory(response?.data?.messages);
       }
     } catch (error) {
       // Add error message to chat
       const errorMessage = {
-        type: 'error',
+        role: 'error',
         content: 'Sorry, I encountered an error. Please try again.'
       };
       setChatHistory(prev => [...prev, errorMessage]);
@@ -81,33 +74,32 @@ const ChatbotComponent = () => {
             {chatHistory.map((chat, index) => (
               <div
                 key={index}
-                className={`flex ${chat.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
                   className={`max-w-full rounded-2xl px-4 py-3 ${
-                    chat.type === 'user'
+                    chat.role === 'user'
                       ? 'bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)] text-white'
-                      : chat.type === 'error'
+                      : chat.role === 'error'
                         ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-sm'
                   }`}
                 >
-                  <div>{chat.content}</div>
-
-                  {/* {chat.sources && chat.sources.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <p className="text-xs font-medium mb-1">Sources:</p>
-                      <ul className="text-xs list-disc pl-4 space-y-1">
-                        {chat.sources.map((source, idx) => (
-                          <li key={idx}>
-                            <span className="font-semibold">ID:</span> {source.id},{" "}
-                            <span className="font-semibold">File:</span> {source.source},{" "}
-                            <span className="font-semibold">Similarity:</span> {source.similarity.toFixed(4)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )} */}
+                  <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap break-words">
+                    <ReactMarkdown
+                      components={{
+                        h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-3 mb-2" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-lg font-bold mt-3 mb-2" {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-md font-bold mt-2 mb-1" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-0" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                        li: ({node, ...props}) => <li className="mb-1" {...props} />
+                      }}
+                    >
+                      {chat.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))}
@@ -140,13 +132,6 @@ const ChatbotComponent = () => {
                 className='flex-1 border-0 placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-transparent w-full outline-transparent focus:outline-transparent focus-visible:outline-transparent text-base text-black dark:text-white'
                 disabled={isLoading}
               />
-              {/* <button
-                type="button"
-                className="w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
-                disabled={isLoading}
-              >
-                <IoAttachSharp className='w-5 h-5'/>
-              </button> */}
               <button
                 type="submit"
                 className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
