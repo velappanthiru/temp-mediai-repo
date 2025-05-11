@@ -94,11 +94,11 @@ const BookUploadPopup = ({ isOpen, onOpenChange, onSubmit }) => {
     const formData = new FormData();
 
     // Add collection name to form data
-    formData.append("collection_name", data.collectionName);
+    formData.append("title", data.collectionName);
 
     // Add files to form data
     data.files.forEach(({ file }) => {
-      formData.append("files", file);
+      formData.append("file", file);
     });
 
 

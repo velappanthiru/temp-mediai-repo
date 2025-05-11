@@ -11,5 +11,5 @@ export const bookGetApi = () => appAxios.get('/api/books/');
 export const getAllUsers = () => appAxios.get('/api/users/');
 export const getChatApi = (data) => aiBaseAxios.post('/ai/chat', data);
 export const lastChatApi = () => aiBaseAxios.post('/ai');
-export const fileUploadApi = (data) => aiBaseAxios.post('/ai/process/', data);
+export const fileUploadApi = (data) => aiBaseAxios.post('/ai/books/upload', data);
 
