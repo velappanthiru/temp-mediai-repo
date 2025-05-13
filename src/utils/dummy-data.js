@@ -168,6 +168,14 @@ const bookMappingListColumns = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
+const onllineExamListColumns = [
+  { name: "S.no", uid: "id" },
+  { name: "Exam name", uid: "exam_name" },
+  { name: "Date", uid: "date" },
+  { name: "Total Question", uid: "total_question" },
+  { name: "Marks", uid: "mark" },
+];
+
 const bookMappingListData = [
   {
     id:1,
@@ -204,4 +212,5 @@ const bookMappingListData = [
 
 
 
-export {bookListColumns, bookListData, userListColumns, studentListData, professorListColumns, professorListData, bookMappingListColumns, bookMappingListData};
+export { bookListColumns, bookListData, userListColumns, studentListData, professorListColumns, professorListData, bookMappingListColumns, bookMappingListData, onllineExamListColumns }
+

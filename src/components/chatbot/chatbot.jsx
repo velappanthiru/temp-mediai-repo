@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CgArrowLongRight } from "react-icons/cg";
 import { getChatApi } from '@/utils/commonapi';
 import ReactMarkdown from 'react-markdown';
+import { Checkbox } from '@heroui/react';
 
 const ChatbotComponent = () => {
   const [message, setMessage] = useState("");
@@ -144,8 +145,11 @@ const ChatbotComponent = () => {
                 <CgArrowLongRight className='w-5 h-5'/>
               </button>
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
-              Press Enter to send
+            <div className="flex items-center justify-between">
+              <Checkbox color='secondary' defaultSelected>Use Base Model</Checkbox>
+              <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
+                Press Enter to send
+              </div>
             </div>
           </div>
         </form>
