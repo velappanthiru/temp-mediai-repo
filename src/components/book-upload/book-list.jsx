@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import BreadcrumbsComponent from '../../layout-component/breadcrumbs';
 import { bookGetApi } from '@/utils/commonapi';
 import { toast } from 'react-hot-toast';
-import dayjs from "dayjs";
+
 
 const statusColorMap = {
   true: "success",
@@ -17,15 +17,7 @@ export function Productcapitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
-const INITIAL_VISIBLE_COLUMNS = [
-  "book_id",
-  "title",
-  "filename",
-  "pages",
-  "chunks",
-  "upload_date",
-  "actions"
-];
+const INITIAL_VISIBLE_COLUMNS = ["id", "bookName", "authorName", "year", "publisher", "edition", "isActive", "actions"];
 
 export const statusOptions = [
   {name: "Active", uid: true},
@@ -37,6 +29,7 @@ const BookList = () => {
   const pathname = usePathname();
   const [bookData, setBookData] = useState([]);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isOpenBookUploadPopup, setIsOpenBookUploadPopup] = useState(false);
   const [bookSingleData, setBookSingleData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   // Split the current path into segments and filter out empty strings
@@ -56,8 +49,9 @@ const BookList = () => {
   const { isOpen: isViewModalOpen, onOpen: onViewModalOpen, onOpenChange:onViewOpenChange, onClose: onViewModalClose } = useDisclosure();
 
   const [page, setPage] = React.useState(1);
+  const [isOpenEditModal, setIsOpenEditModal] = React.useState(false);
 
-  const pages = Math.ceil(bookData?.length / rowsPerPage);
+  const pages = Math.ceil(bookData.length / rowsPerPage);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -72,10 +66,10 @@ const BookList = () => {
 
     if (hasSearchFilter) {
       filteredBooks = filteredBooks.filter((book) =>
-        book.title.toLowerCase().includes(filterValue.toLowerCase()),
+        book.bookName.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions?.length) {
+    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
       filteredBooks = filteredBooks.filter((user) =>
         Array.from(statusFilter).includes(user.status),
       );
@@ -105,33 +99,37 @@ const BookList = () => {
     onViewModalOpen();
     setBookSingleData(data);
   }
+  const handleEditModal = (data) => {
+    setIsOpenEditModal(!isOpenEditModal);
+    setBookSingleData(data);
+  }
 
   const renderCell = React.useCallback((item, columnKey) => {
     const cellValue = item[columnKey];
 
     switch (columnKey) {
-      case "book_id":
+      case "id":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.book_id}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.id}</p>
           </div>
         );
-      case "title":
+      case "bookName":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.title}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.bookName}</p>
           </div>
         );
-      case "filename":
+      case "authorName":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.filename}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.authorName}</p>
           </div>
         );
-      case "pages":
+      case "year":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.pages}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.year}</p>
           </div>
         );
       case "publisher":
@@ -140,26 +138,29 @@ const BookList = () => {
             <p className="text-bold text-small capitalize whitespace-nowrap">{item?.publisher}</p>
           </div>
         );
-      case "chunks":
+      case "edition":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.chunks}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.edition}</p>
           </div>
         );
-        case "upload_date":
-          return (
-            <div className="flex flex-col">
-              <p className="text-bold text-small capitalize whitespace-nowrap">
-                {dayjs(item?.upload_date).format("DD MMM YYYY, hh:mm A")}
-              </p>
-            </div>
-          );
+      case "isActive":
+        return (
+          <Chip className="capitalize" color={statusColorMap[item.isActive]} size="sm" variant="flat">
+            {item?.isActive !== false ? "Active" : "In Active"}
+          </Chip>
+        );
       case "actions":
         return (
           <div className="relative flex items-center justify-center gap-2">
             <Tooltip content="Details">
               <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={()=>handleViewModal(item)}>
                 <EyeIcon />
+              </span>
+            </Tooltip>
+            <Tooltip content="Edit">
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={()=>handleEditModal(item)}>
+                <EditIcon />
               </span>
             </Tooltip>
           </div>
@@ -203,7 +204,6 @@ const BookList = () => {
   useEffect(() => {
     handleGetBookData();
   }, [])
-
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -285,7 +285,7 @@ const BookList = () => {
         </div>
         <div className="flex justify-between items-center">
 
-          <span className="text-default-400 text-small">Total {bookData?.length} books</span>
+          <span className="text-default-400 text-small">Total {bookData.length} books</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -309,7 +309,7 @@ const BookList = () => {
     onSearchChange,
     onRowsPerPageChange,
     rowsPerPage,
-    bookData?.length,
+    bookData.length,
     // hasSearchFilter,
   ]);
 
@@ -336,7 +336,7 @@ const BookList = () => {
         </span> */}
       </div>
     );
-  }, [selectedKeys, items?.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
 
   const handleDownload = async (fileName, fileUrl) => {
@@ -412,7 +412,7 @@ const BookList = () => {
           <TableBody
             isLoading={isLoading}
             emptyContent="No book to display"
-            items={[]}
+            items={sortedItems}
             loadingContent={
             <Spinner
               classNames={
@@ -468,6 +468,8 @@ const BookList = () => {
           )}
         </ModalContent>
       </Modal>
+
+
     </>
   )
 }
