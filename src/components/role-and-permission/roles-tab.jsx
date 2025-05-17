@@ -2,15 +2,32 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
-  Tooltip, Input, Button
+  Tooltip, Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Textarea,
+  Select,
+  SelectItem,
 } from '@heroui/react';
 import { EditIcon, EyeIcon, PlusIcon, SearchIcon } from '../../utils/icon';
 import { RoleColumns, RoleData } from '../../utils/dummy-data';
 import { useRouter } from 'next/navigation';
 
+const permissionData = [
+  { value: 'read', label: 'Read' },
+  { value: 'delete', label: 'Delete' },
+  { value: 'edit', label: 'Edit' },
+]
+
 const RolesTab = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return RoleData;
@@ -69,6 +86,8 @@ const RolesTab = () => {
     }
   }, []);
 
+
+
   return (
     <div className="book-list-section">
       <div className="flex flex-col sm:flex-row justify-between gap-3 items-end my-4">
@@ -91,9 +110,9 @@ const RolesTab = () => {
           color="primary"
           className="bg-gradient-to-r from-purple-700 to-purple-500 text-white"
           endContent={<PlusIcon />}
-          onPress={() => router.push('/super-admin/online-exam/add')}
+          onPress={onOpen}
         >
-          Add New
+          Add New Role
         </Button>
       </div>
 
@@ -122,6 +141,76 @@ const RolesTab = () => {
           )}
         </TableBody>
       </Table>
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Add Role</ModalHeader>
+              <ModalBody>
+                <div className="flex flex-col gap-1.5">
+                  <Input
+                    type="text"
+                    label="Role Name"
+                    placeholder=' '
+                    labelPlacement='outside'
+                    size='lg'
+                    classNames={
+                      {
+                        label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
+                        inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
+                        input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
+                      }
+                    }
+                  />
+                  <small className='text-red-500 text-sm'></small>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Textarea
+                    type="text"
+                    label="Description"
+                    placeholder=' '
+                    labelPlacement='outside'
+                    size='lg'
+                    classNames={
+                      {
+                        label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
+                        inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
+                        input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
+                      }
+                    }
+                  />
+                  <small className='text-red-500 text-sm'></small>
+                </div>
+                <div className='flex flex-col gap-1.5'>
+                  <Select
+                    items={permissionData}
+                    labelPlacement='outside'
+                    label="Permission"
+                    placeholder="Select a permission"
+                    classNames={{
+                      label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
+                      base: "max-w-full",
+                      trigger: "!h-[3rem] bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none"
+                    }}
+                  >
+                    {(permission) => <SelectItem key={permission?.value}>{permission.label}</SelectItem>}
+                  </Select>
+                  <small className='text-red-500 text-sm'></small>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="secondary" onPress={onClose}>
+                  Save
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
