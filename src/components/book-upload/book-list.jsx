@@ -57,7 +57,7 @@ const BookList = () => {
 
   const [page, setPage] = React.useState(1);
 
-  const pages = Math.ceil(bookData.length / rowsPerPage);
+  const pages = Math.ceil(bookData?.length / rowsPerPage);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -75,7 +75,7 @@ const BookList = () => {
         book.title.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions?.length) {
       filteredBooks = filteredBooks.filter((user) =>
         Array.from(statusFilter).includes(user.status),
       );
@@ -285,7 +285,7 @@ const BookList = () => {
         </div>
         <div className="flex justify-between items-center">
 
-          <span className="text-default-400 text-small">Total {bookData.length} books</span>
+          <span className="text-default-400 text-small">Total {bookData?.length} books</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -309,7 +309,7 @@ const BookList = () => {
     onSearchChange,
     onRowsPerPageChange,
     rowsPerPage,
-    bookData.length,
+    bookData?.length,
     // hasSearchFilter,
   ]);
 
@@ -336,7 +336,7 @@ const BookList = () => {
         </span> */}
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, items?.length, page, pages, hasSearchFilter]);
 
 
   const handleDownload = async (fileName, fileUrl) => {
