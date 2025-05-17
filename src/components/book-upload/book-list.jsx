@@ -412,7 +412,7 @@ const BookList = () => {
           <TableBody
             isLoading={isLoading}
             emptyContent="No book to display"
-            items={sortedItems}
+            items={[]}
             loadingContent={
             <Spinner
               classNames={
