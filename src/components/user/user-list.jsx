@@ -360,6 +360,7 @@ const UserList = () => {
                 key={column.uid}
                 align={column.uid === "actions" ? "center" : "start"}
                 allowsSorting={column.sortable}
+                className='font-semibold text-black'
               >
                 {column.name}
               </TableColumn>

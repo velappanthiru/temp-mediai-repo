@@ -116,7 +116,9 @@ const ProfessorProfileList = () => {
         <Table aria-label="Example table with custom cells">
           <TableHeader columns={professorListColumns}>
             {(column) => (
-              <TableColumn key={column.uid}>
+              <TableColumn key={column.uid}
+                className='font-semibold text-black'
+              >
                 {column.name}
               </TableColumn>
             )}
