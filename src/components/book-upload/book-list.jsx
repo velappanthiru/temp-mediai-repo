@@ -8,11 +8,13 @@ import { EditIcon, EyeIcon, PlusIcon, SearchIcon } from '../../utils/icon';
 import { bookListColumns } from '../../utils/dummy-data';
 import { useRouter } from 'next/navigation';
 import dayjs from "dayjs";
+import BookUploadPopup from './book-upload-popup';
 
 const BookList = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [data, setData] = useState('');
+  const [isOpenBookUploadPopup, setIsOpenBookUploadPopup] = useState(false);
 
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return data;
@@ -71,6 +73,10 @@ const BookList = () => {
     }
   }, []);
 
+  const handleBookUploadPopup = () => {
+    setIsOpenBookUploadPopup(!isOpenBookUploadPopup);
+  }
+
   return (
     <div className="book-list-section">
       <div className="flex flex-col sm:flex-row justify-between gap-3 items-end my-4">
@@ -89,6 +95,9 @@ const BookList = () => {
           }}
         />
 
+        <Button color="primary" size="sm" className="bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)]" endContent={<PlusIcon />} onPress={handleBookUploadPopup}>
+          Book Upload
+        </Button>
       </div>
 
       <Table aria-label="Roles table">
@@ -116,6 +125,10 @@ const BookList = () => {
           )}
         </TableBody>
       </Table>
+
+      {
+        isOpenBookUploadPopup && <BookUploadPopup isOpen={isOpenBookUploadPopup} onOpenChange={handleBookUploadPopup}/>
+      }
     </div>
   );
 };
