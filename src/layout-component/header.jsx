@@ -254,9 +254,9 @@ const Header = ({
                   </Link>
                 </li>
                 <li>
-                  <Link href={'/super-admin/book-upload'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/book-upload') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                  <Link href={'/super-admin/book-list'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/book-list') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                     <LuBookUp className='w-6 h-6'/>
-                    <span>Book Upload</span>
+                    <span>Book List</span>
                   </Link>
                 </li>
                 <li>
@@ -265,14 +265,6 @@ const Header = ({
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                     </svg>
                     <span>Users</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href={'/super-admin/book-mapping'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/book-mapping') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                    </svg>
-                    <span>Books Mapping</span>
                   </Link>
                 </li>
                 <li>
@@ -293,42 +285,14 @@ const Header = ({
                     <span>Reports</span>
                   </Link>
                 </li>
+                <li>
+                  <Link href={'/super-admin/role-and-permission'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                    <MdReportGmailerrorred className='w-6 h-6'/>
+                    <span>Roles and Permission</span>
+                  </Link>
+                </li>
               </ul>
-              <div className='flex flex-col gap-4'>
-                <ul className='flex flex-col gap-4'>
-                  <li>
-                    <Link href={'/settings'} className={`text-base font-normal flex items-center gap-3 px-4 py-3 ${pathname === '/settings' ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                      </svg>
-                      <span>Settings</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <div onClick={handleLogout} className={`cursor-pointer text-base font-normal flex items-center gap-3 px-4 py-3 ${pathname === '/logout' ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                      <svg
-                        width="800px"
-                        height="800px"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="size-6"
-                      >
-                        <path
-                          d="M12 3.25C12.4142 3.25 12.75 3.58579 12.75 4C12.75 4.41421 12.4142 4.75 12 4.75C7.99594 4.75 4.75 7.99594 4.75 12C4.75 16.0041 7.99594 19.25 12 19.25C12.4142 19.25 12.75 19.5858 12.75 20C12.75 20.4142 12.4142 20.75 12 20.75C7.16751 20.75 3.25 16.8325 3.25 12C3.25 7.16751 7.16751 3.25 12 3.25Z"
-                          fill="currentColor"
-                        />
-                        <path
-                          d="M16.4697 9.53033C16.1768 9.23744 16.1768 8.76256 16.4697 8.46967C16.7626 8.17678 17.2374 8.17678 17.5303 8.46967L20.5303 11.4697C20.8232 11.7626 20.8232 12.2374 20.5303 12.5303L17.5303 15.5303C17.2374 15.8232 16.7626 15.8232 16.4697 15.5303C16.1768 15.2374 16.1768 14.7626 16.4697 14.4697L18.1893 12.75H10C9.58579 12.75 9.25 12.4142 9.25 12C9.25 11.5858 9.58579 11.25 10 11.25H18.1893L16.4697 9.53033Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      <span>Logout</span>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+
             </div>
 
           </DialogPanel>

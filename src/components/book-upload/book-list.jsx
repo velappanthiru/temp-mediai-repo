@@ -6,8 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import BreadcrumbsComponent from '../../layout-component/breadcrumbs';
 import { bookGetApi } from '@/utils/commonapi';
 import { toast } from 'react-hot-toast';
-import BookEditPopup from './book-edit';
-import BookUploadPopup from './book-upload-popup';
+import dayjs from "dayjs";
 
 const statusColorMap = {
   true: "success",
@@ -18,7 +17,15 @@ export function Productcapitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
-const INITIAL_VISIBLE_COLUMNS = ["id", "bookName", "authorName", "year", "publisher", "edition", "isActive", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "book_id",
+  "title",
+  "filename",
+  "pages",
+  "chunks",
+  "upload_date",
+  "actions"
+];
 
 export const statusOptions = [
   {name: "Active", uid: true},
@@ -30,7 +37,6 @@ const BookList = () => {
   const pathname = usePathname();
   const [bookData, setBookData] = useState([]);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isOpenBookUploadPopup, setIsOpenBookUploadPopup] = useState(false);
   const [bookSingleData, setBookSingleData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   // Split the current path into segments and filter out empty strings
@@ -50,7 +56,6 @@ const BookList = () => {
   const { isOpen: isViewModalOpen, onOpen: onViewModalOpen, onOpenChange:onViewOpenChange, onClose: onViewModalClose } = useDisclosure();
 
   const [page, setPage] = React.useState(1);
-  const [isOpenEditModal, setIsOpenEditModal] = React.useState(false);
 
   const pages = Math.ceil(bookData.length / rowsPerPage);
 
@@ -67,7 +72,7 @@ const BookList = () => {
 
     if (hasSearchFilter) {
       filteredBooks = filteredBooks.filter((book) =>
-        book.bookName.toLowerCase().includes(filterValue.toLowerCase()),
+        book.title.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
@@ -100,44 +105,33 @@ const BookList = () => {
     onViewModalOpen();
     setBookSingleData(data);
   }
-  const handleEditModal = (data) => {
-    setIsOpenEditModal(!isOpenEditModal);
-    setBookSingleData(data);
-  }
-  const handleOnEditModal = (data) => {
-    setIsOpenEditModal(!isOpenEditModal);
-  }
-
-  const handleBookUploadPopup = () => {
-    setIsOpenBookUploadPopup(!isOpenBookUploadPopup);
-  }
 
   const renderCell = React.useCallback((item, columnKey) => {
     const cellValue = item[columnKey];
 
     switch (columnKey) {
-      case "id":
+      case "book_id":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.id}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.book_id}</p>
           </div>
         );
-      case "bookName":
+      case "title":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.bookName}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.title}</p>
           </div>
         );
-      case "authorName":
+      case "filename":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.authorName}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.filename}</p>
           </div>
         );
-      case "year":
+      case "pages":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.year}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.pages}</p>
           </div>
         );
       case "publisher":
@@ -146,29 +140,26 @@ const BookList = () => {
             <p className="text-bold text-small capitalize whitespace-nowrap">{item?.publisher}</p>
           </div>
         );
-      case "edition":
+      case "chunks":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.edition}</p>
+            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.chunks}</p>
           </div>
         );
-      case "isActive":
-        return (
-          <Chip className="capitalize" color={statusColorMap[item.isActive]} size="sm" variant="flat">
-            {item?.isActive !== false ? "Active" : "In Active"}
-          </Chip>
-        );
+        case "upload_date":
+          return (
+            <div className="flex flex-col">
+              <p className="text-bold text-small capitalize whitespace-nowrap">
+                {dayjs(item?.upload_date).format("DD MMM YYYY, hh:mm A")}
+              </p>
+            </div>
+          );
       case "actions":
         return (
           <div className="relative flex items-center justify-center gap-2">
             <Tooltip content="Details">
               <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={()=>handleViewModal(item)}>
                 <EyeIcon />
-              </span>
-            </Tooltip>
-            <Tooltip content="Edit">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={()=>handleEditModal(item)}>
-                <EditIcon />
               </span>
             </Tooltip>
           </div>
@@ -212,6 +203,7 @@ const BookList = () => {
   useEffect(() => {
     handleGetBookData();
   }, [])
+
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -289,12 +281,6 @@ const BookList = () => {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            {/* <Button color="primary" size="sm" className="bg-black dark:bg-gray-600" endContent={<PlusIcon />} onPress={() => router.push('/super-admin/book-upload/add')}>
-              Add New
-            </Button> */}
-            <Button color="primary" size="sm" className="bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)]" endContent={<PlusIcon />} onPress={handleBookUploadPopup}>
-              AI Agent
-            </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -482,13 +468,6 @@ const BookList = () => {
           )}
         </ModalContent>
       </Modal>
-      {
-        isOpenEditModal && <BookEditPopup isEditModalOpen={isOpenEditModal} onEditOpenChange={handleOnEditModal} onEditModalClose={handleOnEditModal} data={bookSingleData} bookDetailsApi={handleGetBookData} />
-      }
-      {
-        isOpenBookUploadPopup && <BookUploadPopup isOpen={isOpenBookUploadPopup} onOpenChange={handleBookUploadPopup}/>
-      }
-
     </>
   )
 }

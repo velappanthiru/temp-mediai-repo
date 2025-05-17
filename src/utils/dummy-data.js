@@ -1,13 +1,13 @@
 const bookListColumns = [
-  { name: "Id", uid: "id" },
-  { name: "Book Name", uid: "bookName" },
-  { name: "Author Name", uid: "authorName" },
-  { name: "Year", uid: "year" },
-  { name: "Publishers", uid: "publisher" },
-  { name: "Editions", uid: "edition" },
-  { name: "Status", uid: "isActive" },
-  { name: "ACTIONS", uid: "actions" },
+  { name: "ID", uid: "book_id" },
+  { name: "Title", uid: "title" },
+  { name: "Filename", uid: "filename" },
+  { name: "Pages", uid: "pages" },
+  { name: "Chunks", uid: "chunks" },
+  { name: "Upload Date", uid: "upload_date" },
+  { name: "Actions", uid: "actions" },
 ];
+
 
 const bookListData = [
   {
@@ -176,6 +176,49 @@ const onllineExamListColumns = [
   { name: "Marks", uid: "mark" },
 ];
 
+const RoleColumns = [
+  { name: "S.no", uid: "id" },
+  { name: "Role", uid: "role" },
+  { name: "Description", uid: "description" },
+  { name: "Permission", uid: "permission" },
+  { name: "ACTIONS", uid: "actions" },
+];
+
+const RoleData = [
+  {
+    id: 1,
+    role: "Super Admin",
+    description: "Has full system access, including managing admins and global settings.",
+    permission: ["read", "write", "delete", "manage-users"],
+  },
+  {
+    id: 2,
+    role: "Admin",
+    description: "Can manage content, settings, and users except other admins.",
+    permission: ["read", "write", "delete"],
+  },
+  {
+    id: 3,
+    role: "User",
+    description: "Standard access to view and interact with available features.",
+    permission: ["read"],
+  },
+  {
+    id: 4,
+    role: "Staff",
+    description: "Can assist users, manage content, and view reports.",
+    permission: ["read", "write"],
+  },
+  {
+    id: 5,
+    role: "Friends",
+    description: "Limited access for external collaborators or support roles.",
+    permission: ["read"],
+  },
+];
+
+
+
 const bookMappingListData = [
   {
     id:1,
@@ -212,5 +255,5 @@ const bookMappingListData = [
 
 
 
-export { bookListColumns, bookListData, userListColumns, studentListData, professorListColumns, professorListData, bookMappingListColumns, bookMappingListData, onllineExamListColumns }
+export { bookListColumns, bookListData, userListColumns, studentListData, professorListColumns, professorListData, bookMappingListColumns, bookMappingListData, onllineExamListColumns, RoleColumns, RoleData }
 
