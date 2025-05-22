@@ -74,6 +74,12 @@ const Sidebar = ({ hideMenu }) => {
               </Link>
             </li>
             <li>
+              <Link href={'/super-admin/patient-details'} className={`text-base font-normal flex items-center gap-3 p-4 border-l-4 border-transparent ${pathname.startsWith('/super-admin/patient-details') ? "text-white border-white" : "text-slate-300 dark:text-zinc-400"}`}>
+                <LuBookUp className='w-6 h-6'/>
+                <span className={`${hideMenu ? 'hidden': ''}`}>Patient Details</span>
+              </Link>
+            </li>  
+            <li>
               <Link href={'/super-admin/online-exam'} className={`text-base font-normal flex items-center gap-3 p-4 border-l-4 border-transparent ${pathname.startsWith('/super-admin/online-exam') ? "text-white border-white" : "text-slate-300 dark:text-zinc-400"}`}>
                 <PiExam className='w-6 h-6'/>
                 <span className={`${hideMenu ? 'hidden' : ''}`}>Online Exam</span>
