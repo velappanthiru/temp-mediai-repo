@@ -14,6 +14,9 @@ export const lastChatApi = () => aiBaseAxios.post('/ai');
 export const fileUploadApi = (data) => aiBaseAxios.post('/ai/books/upload', data);
 export const toggleApi = (data) => aiBaseAxios.post('/ai/toggle_mode', data);
 export const newChatAPi = () => aiBaseAxios.post('/ai/new_session');
+export const historyApi = () => aiBaseAxios.get('/ai/sessions');
+export const generateQuestionsApi = (data) => aiBaseAxios.post('/ai/generate-questions', data);
+export const storeQuestionsApi = () => appAxios.get('/api/generate-questions');
 
 
 
