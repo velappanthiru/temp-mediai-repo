@@ -1,10 +1,12 @@
 'use client';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input, Button
+  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
+  Tooltip, Input, Button
 } from '@heroui/react';
-import { PlusIcon, SearchIcon } from '../../utils/icon';
+import { EditIcon, EyeIcon, SearchIcon } from '../../utils/icon';
 import { useRouter } from 'next/navigation';
+import MainLayout from '@/layout-component/main-layout';
 import { activeExamsApi } from '@/utils/commonapi';
 import dayjs from "dayjs";
 
@@ -17,11 +19,11 @@ const examListColumns = [
   { name: "Total Questions", uid: "total_questions" },
   { name: "Marks per Question", uid: "marks_per_question" },
   { name: "Total Marks", uid: "total_marks" },
-  // { name: "Actions", uid: "actions" },
+  { name: "Actions", uid: "actions" },
 ];
 
 
-const OnlineExamList = () => {
+const ExamList = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [data, setData] = useState([]);
@@ -64,21 +66,21 @@ const OnlineExamList = () => {
       case 'total_marks':
         return <p className="text-sm font-medium whitespace-nowrap">{item?.total_marks}</p>;
 
-        // case 'actions':
-        //   const isToday = dayjs(item.date).isSame(dayjs(), 'day');
-        //   return (
-        //     <div className="flex justify-center gap-2">
-        //       <Button
-        //         color="secondary"
-        //         size="sm"
-        //         radius="full"
-        //         isDisabled={!isToday}
-        //         onPress={() => isToday && router.push(`/online-exam/${item.id}`)}
-        //       >
-        //         Take Test
-        //       </Button>
-        //     </div>
-        //   );
+        case 'actions':
+          const isToday = dayjs(item.date).isSame(dayjs(), 'day');
+          return (
+            <div className="flex justify-center gap-2">
+              <Button
+                color="secondary"
+                size="sm"
+                radius="full"
+                isDisabled={!isToday}
+                onPress={() => isToday && router.push(`/online-exam/${item.id}`)}
+              >
+                Take Test
+              </Button>
+            </div>
+          );
 
       default:
         return item[columnKey];
@@ -100,7 +102,7 @@ const OnlineExamList = () => {
     fetchExamsApi();
   }, [])
   return (
-    <>
+    <MainLayout>
       <div className="book-list-section">
         <div className="flex flex-col sm:flex-row justify-between gap-3 items-end my-4">
           <Input
@@ -117,11 +119,6 @@ const OnlineExamList = () => {
               input: 'text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]',
             }}
           />
-          <div className="flex gap-3">
-            <Button type="button" color="primary" className='bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)]' endContent={<PlusIcon />} onPress={() => router.push('/super-admin/online-exam/add')}>
-              Add New
-            </Button>
-          </div>
         </div>
 
         <Table aria-label="Roles table">
@@ -150,8 +147,8 @@ const OnlineExamList = () => {
           </TableBody>
         </Table>
       </div>
-    </>
+    </MainLayout>
   );
 };
 
-export default OnlineExamList;
+export default ExamList;

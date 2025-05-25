@@ -53,6 +53,7 @@ const OnlineExamAdd = () => {
       console.log("🚀 ~ reviewHandleSubmit ~ error:", error);
     }
   }
+
   const handlePreview = () => {
     if (generatedExam) {
       onOpen();
@@ -63,6 +64,11 @@ const OnlineExamAdd = () => {
       });
     }
   };
+
+  const handleOnSave = () => {
+    setGeneratedExam(null);
+  }
+
   return (
     <>
       <div className='mb-6'>
@@ -251,11 +257,14 @@ const OnlineExamAdd = () => {
         </div>
       </form>
       {/* Preview Modal */}
-      <ExamPreview
-        examData={generatedExam}
-        isOpen={isOpen}
-        onClose={onClose}
-      />
+      {
+        isOpen && <ExamPreview
+          examData={generatedExam}
+          isOpen={isOpen}
+          onClose={onClose}
+          onSave={handleOnSave}
+        />
+      }
     </>
   )
 }

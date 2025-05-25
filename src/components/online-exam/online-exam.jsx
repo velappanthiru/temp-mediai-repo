@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState } from 'react'
-import { usePathname } from 'next/navigation';
-import Select from 'react-select';
-import BreadcrumbsComponent from '../../layout-component/breadcrumbs';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner, Pagination } from '@heroui/react';
 import jsPDF from 'jspdf';
 
 import { toast } from 'react-hot-toast';
+import { storeQuestionsApi } from '@/utils/commonapi';
 
 // Preview Component
 const ExamPreview = ({ examData, isOpen, onClose, onSave }) => {
@@ -61,16 +59,13 @@ const ExamPreview = ({ examData, isOpen, onClose, onSave }) => {
     try {
       // Prepare data for saving
       const examToSave = {
-        ...examData,
-        saved_at: new Date().toISOString(),
-        status: 'saved'
+        examData
       };
-
-      // Call the save function passed from parent
-      if (onSave) {
-        await onSave(examToSave);
+      const response = await storeQuestionsApi(examData);
+      if (response) {
+        onClose();
+        onSave();
       }
-
       toast.success('Exam saved successfully!', {
         duration: 3000,
         position: 'top-right',
@@ -144,7 +139,6 @@ const ExamPreview = ({ examData, isOpen, onClose, onSave }) => {
 
 
   if (!examData) return null;
-console.log(currentQuestion,"currentQuestion");
   const stats = getAnswerStats();
   const currentQ = examData.questions[currentQuestion];
 
@@ -338,11 +332,11 @@ console.log(currentQuestion,"currentQuestion");
               color="success"
               onPress={handleSave}
               disabled={isSaving}
+              isLoading={isSaving}
               className="bg-green-600 hover:bg-green-700 text-white"
             >
               {isSaving ? (
                 <>
-                  <Spinner size="sm" color="white" />
                   Saving...
                 </>
               ) : (

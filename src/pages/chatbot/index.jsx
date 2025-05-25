@@ -1,7 +1,7 @@
 "use client"
 
+import ChatBoxLayout from "@/layout-component/chatbox-layout";
 import ChatbotComponent from "../../components/chatbot/chatbot";
-import MainLayout from "@/layout-component/main-layout";
 
 
 
@@ -10,9 +10,9 @@ export default function HomePage() {
 
   return (
     <>
-      <MainLayout>
+      <ChatBoxLayout>
       <ChatbotComponent />
-      </MainLayout>
+      </ChatBoxLayout>
     </>
   );
 }
