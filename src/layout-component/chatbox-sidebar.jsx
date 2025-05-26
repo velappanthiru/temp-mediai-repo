@@ -79,7 +79,7 @@ const CharboxSidebar = ({ hideMenu }) => {
         </div>
 
         <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col">
-          <div className="p-4">
+          {/* <div className="p-4">
             <Button
               className='bg-purple-600 text-white w-full'
               startContent={
@@ -88,7 +88,7 @@ const CharboxSidebar = ({ hideMenu }) => {
             >
               New Chat
             </Button>
-          </div>
+          </div> */}
           <div className="relative flex flex-col gap-4 p-4 h-[calc(100%-60px)] overflow-y-auto">
             <div className="flex flex-col gap-3 pb-8">
               {
