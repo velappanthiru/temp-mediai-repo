@@ -33,7 +33,7 @@ const Header = ({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const selector = useSelector((state) => state?.auth);
-
+  const userRole = selector?.userInfo?.roleId;
   const dispatch = useDispatch();
 
   const toggleFullScreen = () => {
@@ -246,52 +246,73 @@ const Header = ({
             </div>
 
             <div className="h-full overflow-y-auto flex flex-col justify-between border-t border-gray-200 dark:border-zinc-400">
-              <ul className='flex flex-col'>
-                <li>
-                  <Link href={'/super-admin/chatbot'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/chatbot') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <IoChatboxEllipsesOutline className='w-6 h-6'/>
-                    <span>Chat Bot</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href={'/super-admin/book-list'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/book-list') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <LuBookUp className='w-6 h-6'/>
-                    <span>Book List</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href={'/super-admin/user'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/user') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
-                    <span>Users</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href={'/super-admin/online-exam'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/online-exam') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <PiExam className='w-6 h-6'/>
-                    <span>Online Exam</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href={'/super-admin/lesson-plan'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/lesson-plan') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <MdOutlineLibraryBooks className='w-6 h-6'/>
-                    <span>Lesson Plan</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href={'/super-admin/reports'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <MdReportGmailerrorred className='w-6 h-6'/>
-                    <span>Reports</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href={'/super-admin/role-and-permission'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname.startsWith('/super-admin/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
-                    <MdReportGmailerrorred className='w-6 h-6'/>
-                    <span>Roles and Permission</span>
-                  </Link>
-                </li>
-              </ul>
+              {
+                userRole === 1 ? <>
+                  <ul className='flex flex-col'>
+                    <li>
+                      <Link href={'/super-admin/chatbot'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/chatbot') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <IoChatboxEllipsesOutline className='w-6 h-6'/>
+                        <span>Chat Bot</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={'/super-admin/book-list'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/book-list') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <LuBookUp className='w-6 h-6'/>
+                        <span>Book List</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={'/super-admin/user'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/user') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                        <span>Users</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={'/super-admin/online-exam'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/online-exam') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <PiExam className='w-6 h-6'/>
+                        <span>Online Exam</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={'/super-admin/lesson-plan'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/lesson-plan') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <MdOutlineLibraryBooks className='w-6 h-6'/>
+                        <span>Lesson Plan</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={'/super-admin/reports'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <MdReportGmailerrorred className='w-6 h-6'/>
+                        <span>Reports</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={'/super-admin/role-and-permission'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <MdReportGmailerrorred className='w-6 h-6'/>
+                        <span>Roles and Permission</span>
+                      </Link>
+                    </li>
+                  </ul>
+                </> : <>
+                  <ul className='flex flex-col'>
+                    <li>
+                      <Link href={'/chatbot'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/chatbot') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <IoChatboxEllipsesOutline className='w-6 h-6'/>
+                        <span>Chat Bot</span>
+                      </Link>
+                    </li>
+
+                    <li>
+                      <Link href={'/online-exam'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/online-exam') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                        <PiExam className='w-6 h-6'/>
+                        <span>Online Exam</span>
+                      </Link>
+                    </li>
+                  </ul>
+                </>
+              }
+
 
             </div>
 

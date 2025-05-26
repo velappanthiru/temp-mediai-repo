@@ -96,13 +96,13 @@ const ChatbotComponent = () => {
   }
   return (
     <div className='h-[calc(100vh-7rem)] flex flex-col relative bg-white dark:bg-[#292e32] rounded-xl'>
-      <div className='flex justify-end p-4 border-b border-neutral-200 dark:border-neutral-600'>
+      {/* <div className='flex justify-end p-4 border-b border-neutral-200 dark:border-neutral-600'>
         <div className={`p-4 text-black dark:text-white ${chatHistory?.length === 0 ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
           onClick={handleRefresh}
         >
           <TbRefresh className={`w-6 h-6`} disabled={chatHistory?.length === 0} />
         </div>
-      </div>
+      </div> */}
       <div
         ref={chatContainerRef}
         className={`flex-1 overflow-y-auto pb-40 mx-auto w-full md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem] scroll-smooth scrollbar-hide`}
@@ -147,7 +147,7 @@ const ChatbotComponent = () => {
               <>
                 {
                   chat?.role === "user" && <div
-                    key={index}
+                    key={`user_${index}`}
                     className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
@@ -179,7 +179,7 @@ const ChatbotComponent = () => {
                 }
                 {
                   chat?.role === "assistant" && <div
-                    key={index}
+                    key={`assistant_${index}`}
                     className={`flex flex-col gap-4 ${chat.role === 'user' ? 'justify-end' : 'justify-center'}`}
                   >
                     {
