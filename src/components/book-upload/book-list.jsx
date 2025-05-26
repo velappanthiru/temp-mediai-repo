@@ -57,34 +57,34 @@ const BookList = () => {
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize whitespace-nowrap">
-              {dayjs(item?.upload_date).format("DD MMM YYYY, hh:mm A")}
+              {dayjs(item?.upload_date).format("DD MMM YYYY")}
             </p>
           </div>
         );
 
-      case 'actions':
-        return (
-          <div className="flex justify-center gap-2">
-            <Tooltip content="View Details">
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={() => console.log(`View ${item?.id}`)}
-              >
-                <EyeIcon className="w-4 h-4 text-primary" />
-              </Button>
-            </Tooltip>
-            <Tooltip content="Edit Role">
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={() => console.log(`Edit ${item?.id}`)}
-              >
-                <EditIcon className="w-4 h-4 text-gray-500" />
-              </Button>
-            </Tooltip>
-          </div>
-        );
+      // case 'actions':
+      //   return (
+      //     <div className="flex justify-center gap-2">
+      //       <Tooltip content="View Details">
+      //         <Button
+      //           isIconOnly
+      //           variant="light"
+      //           onPress={() => console.log(`View ${item?.id}`)}
+      //         >
+      //           <EyeIcon className="w-4 h-4 text-primary" />
+      //         </Button>
+      //       </Tooltip>
+      //       <Tooltip content="Edit Role">
+      //         <Button
+      //           isIconOnly
+      //           variant="light"
+      //           onPress={() => console.log(`Edit ${item?.id}`)}
+      //         >
+      //           <EditIcon className="w-4 h-4 text-gray-500" />
+      //         </Button>
+      //       </Tooltip>
+      //     </div>
+      //   );
       default:
         return item[columnKey];
     }

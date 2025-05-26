@@ -3,7 +3,7 @@ const bookListColumns = [
   { name: "Collection Name", uid: "collection_name" },
   { name: "Pages", uid: "pages" },
   { name: "Upload Date", uid: "upload_date" },
-  { name: "Actions", uid: "actions" },
+  // { name: "Actions", uid: "actions" },
 ];
 
 
