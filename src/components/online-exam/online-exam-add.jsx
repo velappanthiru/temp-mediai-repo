@@ -1,17 +1,17 @@
 "use client";
 
 import { Input } from '@heroui/input';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation';
-import Select from 'react-select';
 import BreadcrumbsComponent from '../../layout-component/breadcrumbs';
 import { Button, Radio, RadioGroup, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@heroui/react';
 import { questionSchema } from '@/utils/yubSchema/validate';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { generateQuestionsApi } from '@/utils/commonapi';
+import { bookTopicsandTitleApi, generateQuestionsApi } from '@/utils/commonapi';
 import { toast } from 'react-hot-toast';
 import ExamPreview from './online-exam';
+import Select from 'react-select';
 
 
 
@@ -23,8 +23,10 @@ const OnlineExamAdd = () => {
   const pathSegments = pathname.split('/').filter((segment) => segment);
 
   const [generatedExam, setGeneratedExam] = useState(null);
+  const [topics, setTopics] = useState([]);
+  const [topicsLoading, setTopicsLoading] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting, isSubmitSuccessful }, control } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting, isSubmitSuccessful }, control } = useForm({
     resolver: yupResolver(questionSchema),
     mode: "onSubmit",
     reValidateMode: "onBlur",
@@ -69,6 +71,69 @@ const OnlineExamAdd = () => {
     setGeneratedExam(null);
   }
 
+  const fetchBookTopicsandTitle = async () => {
+    setTopicsLoading(true);
+    try {
+      const response = await bookTopicsandTitleApi();
+      if (response?.data) {
+        const options = response.data.map((book) => ({
+          value: book.book_id,
+          label: book.title,
+        }));
+        setTopics(options);
+      }
+    } catch (error) {
+      console.log("🚀 ~ fetchBookTopicsandTitle ~ error:", error);
+    } finally {
+      setTopicsLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchBookTopicsandTitle();
+  }, [])
+
+  const customTheme = (theme) => ({
+    ...theme,
+    colors: {
+        ...theme.colors,
+        primary25: '#d4d4d8',
+        primary: 'white',
+    },
+  });
+
+  const customSelectStyles = {
+    control: (base) => ({
+        ...base,
+        borderColor: '#E7E7E9',
+        boxShadow: 'none',
+        borderRadius: 12,
+        height: "3rem",
+        '&:hover': {
+            borderColor: '#E7E7E9',
+        },
+    }),
+    menu: (base) => ({
+        ...base,
+        zIndex: 9999,
+        borderColor: '#E7E7E9',
+        borderRadius: 12,
+        paddingTop: 8,
+        paddingBottom: 8,
+    }),
+    option: (base, state) => ({
+        ...base,
+        backgroundColor: state.isSelected ? '#E7E7E9' : state.isFocused ? '#E7E7E9' : 'transparent',
+        color: state.isSelected ? 'black' : 'black',
+        cursor: 'pointer',
+    }),
+  };
+
+  const handleSelectChange = (e) => {
+    setValue("book_name", e?.label);
+  }
+
   return (
     <>
       <div className='mb-6'>
@@ -86,6 +151,7 @@ const OnlineExamAdd = () => {
               size='lg'
               classNames={
                 {
+                  base: "data-[has-label=true]:mt-[calc(theme(fontSize.small)_+_18px)]",
                   label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
                   inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
                   input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
@@ -98,24 +164,28 @@ const OnlineExamAdd = () => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Input
-              type="text"
-              label="Books Name"
-              {...register("book_name")}
-              placeholder=' '
-              labelPlacement='outside'
-              size='lg'
-              classNames={
-                {
-                  label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
-                  inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
-                  input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
-                }
-              }
+            <label className="block text-base font-medium text-black dark:text-[#9F9FA5]">Topic or Books Name ( Google Search option)</label>
+            <Controller
+              name="book_name"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <Select
+                  id={`state-select-timeDurationOptions`}
+                  className="basic-single"
+                  isClearable={true}
+                  isSearchable={true}
+                  isLoading={topicsLoading}
+                  options={topics}
+                  theme={customTheme}
+                  styles={customSelectStyles}
+                  value={topics.find(option => option.label === value) || null}
+                  onChange={(selectedOption) => {
+                    onChange(selectedOption?.label || "");
+                  }}
+                />
+              )}
             />
-            {
-              errors?.book_name && <small className='text-red-500 text-sm'>{errors?.book_name?.message}</small>
-            }
+            {errors?.book_name && <small className='text-red-500 text-sm'>{errors?.book_name?.message}</small>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -128,6 +198,7 @@ const OnlineExamAdd = () => {
               size='lg'
               classNames={
                 {
+                  base: "data-[has-label=true]:mt-[calc(theme(fontSize.small)_+_18px)]",
                   label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
                   inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
                   input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
@@ -149,6 +220,7 @@ const OnlineExamAdd = () => {
               size='lg'
               classNames={
                 {
+                  base: "data-[has-label=true]:mt-[calc(theme(fontSize.small)_+_18px)]",
                   label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
                   inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
                   input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
@@ -170,6 +242,7 @@ const OnlineExamAdd = () => {
               size='lg'
               classNames={
                 {
+                  base: "data-[has-label=true]:mt-[calc(theme(fontSize.small)_+_18px)]",
                   label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
                   inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
                   input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
@@ -191,6 +264,7 @@ const OnlineExamAdd = () => {
               size='lg'
               classNames={
                 {
+                  base: "data-[has-label=true]:mt-[calc(theme(fontSize.small)_+_18px)]",
                   label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
                   inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
                   input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
@@ -220,8 +294,8 @@ const OnlineExamAdd = () => {
                     wrapper: "gap-4"
                   }}
                 >
-                  <Radio value="commonai">Common Ai</Radio>
-                  <Radio value="mediai">MediAi</Radio>
+                  <Radio value="Common ai">Common Ai</Radio>
+                  <Radio value="MediAI">MediAi</Radio>
                 </RadioGroup>
               )}
             />
