@@ -174,7 +174,7 @@ const MenuAccessTab = () => {
             <TableColumn
               key={column.uid}
               align={column?.uid !== "menu" ? "center" : "start"}
-              className='font-semibold text-black'
+              className='font-semibold text-black dark:text-white'
             >
               {column.name}
             </TableColumn>

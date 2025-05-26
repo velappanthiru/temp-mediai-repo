@@ -1,9 +1,7 @@
 const bookListColumns = [
-  { name: "ID", uid: "book_id" },
   { name: "Title", uid: "title" },
-  { name: "Filename", uid: "filename" },
+  { name: "Collection Name", uid: "collection_name" },
   { name: "Pages", uid: "pages" },
-  { name: "Chunks", uid: "chunks" },
   { name: "Upload Date", uid: "upload_date" },
   { name: "Actions", uid: "actions" },
 ];

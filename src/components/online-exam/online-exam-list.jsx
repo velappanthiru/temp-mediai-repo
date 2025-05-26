@@ -130,7 +130,7 @@ const OnlineExamList = () => {
               <TableColumn
                 key={column.uid}
                 align={column?.uid === "actions" ? "center" : "start"}
-                className='font-semibold text-black'
+                className='font-semibold text-black dark:text-white'
               >
                 {column.name}
               </TableColumn>

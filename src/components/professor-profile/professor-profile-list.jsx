@@ -117,7 +117,7 @@ const ProfessorProfileList = () => {
           <TableHeader columns={professorListColumns}>
             {(column) => (
               <TableColumn key={column.uid}
-                className='font-semibold text-black'
+                className='font-semibold text-black dark:text-white'
               >
                 {column.name}
               </TableColumn>
