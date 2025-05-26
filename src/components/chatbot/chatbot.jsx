@@ -105,10 +105,10 @@ const ChatbotComponent = () => {
       </div> */}
       <div
         ref={chatContainerRef}
-        className={`flex-1 overflow-y-auto pb-40 mx-auto w-full md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem] scroll-smooth scrollbar-hide`}
+        className={`flex-1 overflow-y-auto pb-40 scroll-smooth scrollbar-hide`}
       >
         {chatHistory?.length === 0 ? (
-          <div className="flex flex-col h-full p-4">
+          <div className="flex flex-col h-full p-4 mx-auto w-full md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]">
             <div className="text-center w-full md:max-w-3xl lg:max-w-[35rem] my-auto mx-auto">
               <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center animate-pulse">
                 <FiMessageSquare className="text-white w-8 h-8" />
@@ -142,7 +142,7 @@ const ChatbotComponent = () => {
           </div>
 
         ) : (
-          <div className="flex flex-col gap-6 pt-6 px-4">
+          <div className="flex flex-col gap-6 pt-6 px-4 mx-auto w-full md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]">
             {chatHistory?.map((chat, index) => (
               <>
                 {

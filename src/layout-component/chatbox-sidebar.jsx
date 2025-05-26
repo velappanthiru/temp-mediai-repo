@@ -78,7 +78,7 @@ const CharboxSidebar = ({ hideMenu }) => {
           </div>
         </div>
 
-        <div className="h-full overflow-hidden flex flex-col">
+        <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col">
           <div className="p-4">
             <Button
               className='bg-purple-600 text-white w-full'
@@ -89,8 +89,8 @@ const CharboxSidebar = ({ hideMenu }) => {
               New Chat
             </Button>
           </div>
-          <div className="flex flex-col gap-4 p-4 h-[calc(100%-18rem)] overflow-y-auto">
-            <div className="flex flex-col gap-3">
+          <div className="relative flex flex-col gap-4 p-4 h-[calc(100%-60px)] overflow-y-auto">
+            <div className="flex flex-col gap-3 pb-8">
               {
                 todayData?.length > 0 && <>
                   <div className="title">
@@ -99,7 +99,7 @@ const CharboxSidebar = ({ hideMenu }) => {
                   <ul className='flex flex-col'>
                     {
                       todayData?.map((item, idx) => (
-                        <li key={`today_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 rounded-lg cursor-pointer'>
+                        <li key={`today_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
                           <span className="w-[calc(100%-0.625rem)] black text-sm text-black dark:text-white line-clamp-1 whitespace-nowrap">{item?.title}</span>
                         </li>
                       ))
@@ -115,7 +115,7 @@ const CharboxSidebar = ({ hideMenu }) => {
                   <ul className='flex flex-col'>
                     {
                       yesterdayData?.map((item, idx) => (
-                        <li key={`yesterday_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 rounded-lg cursor-pointer'>
+                        <li key={`yesterday_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
                           <span className="w-[calc(100%-0.625rem)] black text-sm text-black dark:text-white line-clamp-1 whitespace-nowrap">{item?.title}</span>
                         </li>
                       ))
@@ -131,7 +131,7 @@ const CharboxSidebar = ({ hideMenu }) => {
                   <ul className='flex flex-col'>
                     {
                       thisWeekData?.map((item, idx) => (
-                        <li key={`thisweek_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 rounded-lg cursor-pointer'>
+                        <li key={`thisweek_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
                           <span className="w-[calc(100%-0.625rem)] black text-sm text-black dark:text-white line-clamp-1 whitespace-nowrap">{item?.title}</span>
                         </li>
                       ))
@@ -140,8 +140,11 @@ const CharboxSidebar = ({ hideMenu }) => {
                 </>
               }
             </div>
+            {/* Bottom fade overlay */}
           </div>
-          <div className="mt-auto">
+          <div className="mt-auto relative">
+            <div className="absolute bottom-0 left-0 right-0 top-[-4rem] h-16 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-[#292e32] dark:via-[#292e32]/80 dark:to-transparent pointer-events-none rounded-t-lg"></div>
+
             <ul>
               <li>
                 <Link href={userRole === 1 ? "/super-admin/book-list": "/online-exam"} className={`text-base font-normal flex items-center gap-3 p-4 text-purple-600 dark:text-white`}>
