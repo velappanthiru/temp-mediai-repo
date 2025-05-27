@@ -1,75 +1,24 @@
 'use client';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
-  Tooltip, Input, Button, Checkbox, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem
+  Tooltip, Input, Button, Checkbox, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Spinner
 } from '@heroui/react';
-import { ChevronDownIcon, EditIcon, EyeIcon, PlusIcon, SearchIcon } from '../../utils/icon';
+import { ChevronDownIcon, SearchIcon } from '../../utils/icon';
 import { useRouter } from 'next/navigation';
-
-const INITIAL_VISIBLE_COLUMNS = ["menu", "super_admin", "admin", "user", "staff", "friends"];
+import { getAllMenus, getAllRolesApi, updateMenuAccessApi } from '@/utils/commonapi';
 
 const MenuAccessTab = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
-  const [menuColumns, setMenuColumns] = useState([
-    { name: "Menu Items", uid: "menu" },
-    { name: "Super Admin", uid: "super_admin" },
-    { name: "Admin", uid: "admin" },
-    { name: "User", uid: "user" },
-    { name: "Staff", uid: "staff" },
-    { name: "Friends", uid: "friends" },
-  ]);
-  const [data, setData] = useState([
-    {
-      id: 1,
-      key: "chat_bot",
-      menu: "Chat bot",
-      permission: ["super_admin", "admin", "user", "staff", "friends"],
-    },
-    {
-      id: 2,
-      key: "book_list",
-      menu: "Book List",
-      permission: ["super_admin", "admin"],
-    },
-    {
-      id: 3,
-      key: "user",
-      menu: "User",
-      permission: ["super_admin", "admin"],
-    },
-    {
-      id: 4,
-      key: "online_exam",
-      menu: "Online Exam",
-      permission: ["super_admin", "admin", "user"],
-    },
-    {
-      id: 5,
-      key: "lesson_plan",
-      menu: "Lesson Plan",
-      permission: ["super_admin", "admin", "user"],
-    },
-    {
-      id: 6,
-      key: "reports",
-      menu: "Reports",
-      permission: ["super_admin", "admin"],
-    },
-    {
-      id: 7,
-      key: "role_and_permission",
-      menu: "Role and Permission",
-      permission: ["super_admin"],
-    },
-  ]);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [visibleColumns, setVisibleColumns] = React.useState(new Set([]));
+  const [menuColumns, setMenuColumns] = useState([]);
+  const [data, setData] = useState([]);
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return menuColumns;
-
     return menuColumns.filter((column) => Array.from(visibleColumns).includes(column.uid));
   }, [visibleColumns]);
 
@@ -78,7 +27,39 @@ const MenuAccessTab = () => {
     return data.filter((menu) =>
       menu?.menu?.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, data]);
+
+  const handleCheckboxChange = async (menuId, roleName, isChecked) => {
+    try {
+      setIsUpdating(true);
+      let hasAccess = isChecked?.target?.checked
+      const updateData = {
+        menuId,
+        roleName,
+        hasAccess
+      }
+      console.log("🚀 ~ handleCheckboxChange ~ updateData:", updateData)
+      // Call the API to update menu access
+      const response = await updateMenuAccessApi(updateData);
+
+      if (response) {
+        // Update local state to reflect the change
+        fetchAllMenus();
+
+        // Optional: Show success message
+        console.log('Menu access updated successfully');
+      } else {
+        console.error('Failed to update menu access:', response.message);
+        // Optional: Show error message to user
+      }
+    } catch (error) {
+      console.error('Error updating menu access:', error);
+      // Optional: Show error message to user
+      // You might want to revert the checkbox state here
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
@@ -89,41 +70,77 @@ const MenuAccessTab = () => {
           </p>
         );
 
-      case 'actions':
-        return (
-          <div className="flex justify-center gap-2">
-            <Tooltip content="View Details">
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={() => console.log(`View ${item.id}`)}
-              >
-                <EyeIcon className="w-4 h-4 text-primary" />
-              </Button>
-            </Tooltip>
-            <Tooltip content="Edit Role">
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={() => console.log(`Edit ${item.id}`)}
-              >
-                <EditIcon className="w-4 h-4 text-gray-500" />
-              </Button>
-            </Tooltip>
-          </div>
-        );
-
       default:
         // For roles like super_admin, admin, etc.
+        const isChecked = item.permission.includes(columnKey);
+        const isAdmin = String(columnKey) === "1" ? true : false;
         return (
-          <Checkbox color='secondary' isSelected={item.permission.includes(columnKey)} />
+         isAdmin ?  <Tooltip content="Super admin have default access for all menus" showArrow={true}>
+            <Checkbox
+              color='secondary'
+              isSelected={isChecked}
+              // isDisabled={isUpdating || isAdmin}
+              // onChange={(checked) => handleCheckboxChange(item.id, columnKey, checked)}
+            />
+          </Tooltip> : <Checkbox
+              color='secondary'
+              isSelected={isChecked}
+              isDisabled={isUpdating || isAdmin}
+              onChange={(checked) => handleCheckboxChange(item.id, columnKey, checked)}
+            />
         );
     }
-  }, []);
+  }, [isUpdating]);
 
   function capitalize(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
   }
+
+  const fetchAllRoles = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAllRolesApi();
+      if (response) {
+        const apiData = response?.data;
+        // Add default menu item and map role data with renamed keys
+        const rolesWithMenuItem = [
+          { name: "Menu Items", uid: "menu" }, // default menu item with role_id key
+          ...apiData.map(role => ({
+            name: role.name,          // renamed from 'name' or 'id' to 'role_id'
+            uid: role.id // e.g., "Super Admin" → "super_admin"
+          }))
+        ];
+        const columnsVisible = rolesWithMenuItem?.map((item) => item?.uid);
+        setVisibleColumns(columnsVisible);
+        setMenuColumns(rolesWithMenuItem || []);
+      }
+    } catch (error) {
+      console.log("🚀 ~ fetchAllRoles ~ error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchAllMenus = async () => {
+    try {
+      const response = await getAllMenus();
+      if (response) {
+        setData(response?.data)
+      }
+    } catch (error) {
+      console.log("🚀 ~ fetchAllMenus ~ error:", error)
+    }
+  }
+
+  // Function to refresh menu data after updates
+  const refreshMenuData = async () => {
+    await fetchAllMenus();
+  };
+
+  useEffect(() => {
+    fetchAllRoles();
+    fetchAllMenus();
+  }, []);
 
   return (
     <div className="book-list-section">
@@ -182,6 +199,10 @@ const MenuAccessTab = () => {
         </TableHeader>
         <TableBody
           items={filteredData}
+          isLoading={isLoading}
+          loadingContent={
+            <Spinner color='secondary'/>
+          }
           emptyContent={<span className="text-center text-sm text-gray-500">No data found.</span>}
         >
           {(item) => (

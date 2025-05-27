@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
   Tooltip, Input,
@@ -10,83 +10,118 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Textarea,
-  Select,
-  SelectItem,
+  Spinner,
 } from '@heroui/react';
 import { EditIcon, EyeIcon, PlusIcon, SearchIcon } from '../../utils/icon';
-import { RoleColumns, RoleData } from '../../utils/dummy-data';
+import { RoleColumns } from '../../utils/dummy-data';
 import { useRouter } from 'next/navigation';
+import { getAllRolesApi, createRoleApi } from '@/utils/commonapi';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { toast } from 'react-hot-toast';
 
-const permissionData = [
-  { value: 'read', label: 'Read' },
-  { value: 'delete', label: 'Delete' },
-  { value: 'edit', label: 'Edit' },
-]
+// Validation schema
+const roleSchema = yup.object().shape({
+  name: yup
+    .string()
+    .required('Role name is required')
+    .min(2, 'Role name must be at least 2 characters')
+    .max(50, 'Role name cannot exceed 50 characters')
+    .trim()
+});
 
 const RolesTab = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [rolesData, setRolesData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure();
+
+  // React Hook Form setup
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setValue
+  } = useForm({
+    resolver: yupResolver(roleSchema),
+    defaultValues: {
+      name: ''
+    }
+  });
 
   const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return RoleData;
-    return RoleData.filter((role) =>
-      role.role.toLowerCase().includes(searchQuery.toLowerCase())
+    if (!searchQuery.trim()) return rolesData;
+    return rolesData.filter((role) =>
+      role.role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      role.name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, rolesData]);
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case 'id':
         return <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{item.id}</p>;
-      case 'role':
-        return <p className="text-sm font-medium capitalize whitespace-nowrap">{item.role}</p>;
-      case 'description':
-        return <p className="text-sm font-medium capitalize min-w-[10rem]">{item.description}</p>;
-      case 'permission':
-        return (
-          <div className="flex flex-wrap gap-1 min-w-[10rem]">
-            {item?.permission?.map((perm, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-700/10 ring-inset"
-              >
-                {perm}
-              </span>
-            ))}
-          </div>
-        );
-
-      case 'actions':
-        return (
-          <div className="flex justify-center gap-2">
-            <Tooltip content="View Details">
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={() => console.log(`View ${item.id}`)}
-              >
-                <EyeIcon className="w-4 h-4 text-primary" />
-              </Button>
-            </Tooltip>
-            <Tooltip content="Edit Role">
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={() => console.log(`Edit ${item.id}`)}
-              >
-                <EditIcon className="w-4 h-4 text-gray-500" />
-              </Button>
-            </Tooltip>
-          </div>
-        );
+      case 'name':
+        return <p className="text-sm font-medium capitalize whitespace-nowrap">{item.name}</p>;
       default:
         return item[columnKey];
     }
   }, []);
 
+  const fetchAllRoles = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAllRolesApi();
+      if (response) {
+        setRolesData(response?.data || []);
+      }
+    } catch (error) {
+      console.log("🚀 ~ fetchAllRoles ~ error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const handleCreateRole = async (data) => {
+    console.log("🚀 ~ onSubmit ~ data:", data)
+    try {
+      const response = await createRoleApi(data);
+
+      if (response) {
+        await fetchAllRoles();
+        reset();
+        onClose();
+        console.log('Role created successfully:', response);
+        toast.success("Role created successfully", {
+          duration: 3000,
+          position: 'top-right',
+        });
+      }
+    } catch (error) {
+      const errorMessage =
+      error?.response?.data?.error || // backend-defined error
+      error?.message ||               // generic JS error
+      "Something went wrong. Please try again."; // fallback
+
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: 'top-right',
+      });
+      console.log("🚀 ~ onSubmit ~ error:", error);
+    }
+  };
+
+  const handleModalClose = () => {
+    reset();
+    onOpenChange(false);
+  };
+
+  useEffect(() => {
+    fetchAllRoles();
+  }, []);
 
   return (
     <div className="book-list-section">
@@ -121,7 +156,7 @@ const RolesTab = () => {
           {(column) => (
             <TableColumn
               key={column.uid}
-              align={column?.uid === "actions" ? "center" : "start"}
+              align={"center"}
               className='font-semibold text-black dark:text-white'
             >
               {column.name}
@@ -130,7 +165,15 @@ const RolesTab = () => {
         </TableHeader>
         <TableBody
           items={filteredData}
-          emptyContent={<span className="text-center text-sm text-gray-500">No matching roles found.</span>}
+          isLoading={isLoading}
+          loadingContent={
+            <Spinner color='secondary'/>
+          }
+          emptyContent={
+            <span className="text-center text-sm text-gray-500">
+              No matching roles found.
+            </span>
+          }
         >
           {(item) => (
             <TableRow key={item.id}>
@@ -142,72 +185,59 @@ const RolesTab = () => {
         </TableBody>
       </Table>
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <Modal isOpen={isOpen}
+        isDismissable={!isSubmitting}
+        isKeyboardDismissDisabled={isSubmitting}
+        onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
-            <>
+            <form onSubmit={handleSubmit(handleCreateRole)}>
               <ModalHeader className="flex flex-col gap-1">Add Role</ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-1.5">
-                  <Input
-                    type="text"
-                    label="Role Name"
-                    placeholder=' '
-                    labelPlacement='outside'
-                    size='lg'
-                    classNames={
-                      {
-                        label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
-                        inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
-                        input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
-                      }
-                    }
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        label="Role Name"
+                        placeholder="Enter role name"
+                        labelPlacement='outside'
+                        size='lg'
+                        isInvalid={!!errors.name}
+                        errorMessage={errors.name?.message}
+                        classNames={{
+                          label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
+                          inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
+                          input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]",
+                          errorMessage: "text-red-500 text-sm mt-1"
+                        }}
+                      />
+                    )}
                   />
-                  <small className='text-red-500 text-sm'></small>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Textarea
-                    type="text"
-                    label="Description"
-                    placeholder=' '
-                    labelPlacement='outside'
-                    size='lg'
-                    classNames={
-                      {
-                        label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
-                        inputWrapper: "block bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 h-10 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none",
-                        input: "text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]"
-                      }
-                    }
-                  />
-                  <small className='text-red-500 text-sm'></small>
-                </div>
-                <div className='flex flex-col gap-1.5'>
-                  <Select
-                    items={permissionData}
-                    labelPlacement='outside'
-                    label="Permission"
-                    placeholder="Select a permission"
-                    classNames={{
-                      label: "block text-base font-medium text-black dark:text-[#9F9FA5] group-data-[filled-within=true]:text-[#000] group-data-[filled-within=true]:dark:text-[#9F9FA5]",
-                      base: "max-w-full",
-                      trigger: "!h-[3rem] bg-white dark:bg-transparent data-[hover=true]:bg-white dark:data-[hover=true]:bg-black group-data-[focus=true]:bg-white dark:group-data-[focus=true]:bg-black shadow-none w-full px-4 py-2 border border-[#E7E7E9] dark:border-[#3E3E3E] data-[hover=true]:border-[#E7E7E9] data-[hover=true]:dark:border-[#3E3E3E] group-data-[focus=true]:border-[#E7E7E9] group-data-[focus=true]:dark:border-[#3E3E3E] rounded-xl focus:outline-none"
-                    }}
-                  >
-                    {(permission) => <SelectItem key={permission?.value}>{permission.label}</SelectItem>}
-                  </Select>
-                  <small className='text-red-500 text-sm'></small>
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" onPress={onClose}>
+                <Button
+                  color="danger"
+                  variant="light"
+                  onPress={handleModalClose}
+                  isDisabled={isSubmitting}
+                >
                   Cancel
                 </Button>
-                <Button color="secondary" onPress={onClose}>
-                  Save
+                <Button
+                  color="primary"
+                  type="submit"
+                  isLoading={isSubmitting}
+                  className="bg-gradient-to-r from-purple-700 to-purple-500 text-white"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Role'}
                 </Button>
               </ModalFooter>
-            </>
+            </form>
           )}
         </ModalContent>
       </Modal>

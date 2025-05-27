@@ -1,22 +1,25 @@
 "use client";
 
 import { Button, Input } from '@heroui/react';
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import BreadcrumbsComponent from '../../layout-component/breadcrumbs';
 import { usePathname } from 'next/navigation';
 import Select from 'react-select';
-import { roleData, statusData } from '../../utils/common';
-import { useForm } from 'react-hook-form';
+import { statusData } from '../../utils/common';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { registerValidationSchema } from '@/utils/yubSchema/authSchemeValidation';
-import { userRegisterApi } from '@/utils/commonapi';
+import { getAllRolesApi, userRegisterApi } from '@/utils/commonapi';
 import { toast } from 'react-hot-toast';
 
 const AddUser = () => {
   const pathname = usePathname();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [rolesData, setRolesData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const selectRoleRef = useRef();
   const selectStatusRef = useRef();
+
   // Split the current path into segments and filter out empty strings
   const pathSegments = pathname.split('/').filter((segment) => segment);
   const customTheme = (theme) => ({
@@ -56,7 +59,7 @@ const AddUser = () => {
   };
 
 
-  const { register, handleSubmit, reset, formState, setValue } = useForm({
+  const { register, handleSubmit, reset, formState, setValue, control } = useForm({
     resolver: yupResolver(
       registerValidationSchema
     ),
@@ -114,6 +117,28 @@ const AddUser = () => {
   const handleOnChange = (e,field) => {
     setValue(field, e?.value);
   }
+
+  const fetchAllRoles = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAllRolesApi();
+      if (response) {
+        const options = response.data.map((book) => ({
+          value: book.id,
+          label: book.name,
+        }));
+        setRolesData(options || []);
+      }
+    } catch (error) {
+      console.log("🚀 ~ fetchAllRoles ~ error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllRoles();
+  }, [])
 
   return (
     <>
@@ -184,17 +209,27 @@ const AddUser = () => {
           }
         </div>
         <div className='flex flex-col gap-1.5'>
-          <label className="block text-base font-medium text-black dark:text-[#9F9FA5] mt-[-0.25rem]">Role</label>
-          <Select
-            id={`state-select-timeDurationOptions`}
-            className="basic-single"
-            isClearable={true}
-            isSearchable={true}
-            options={roleData}
-            theme={customTheme}
-            styles={customSelectStyles}
-            onChange={(e) => handleOnChange(e, "role")}
-            ref={selectRoleRef}
+          <label className="block text-base font-medium text-black dark:text-[#9F9FA5] mt-[-0.25rem]">Rolesss</label>
+
+          <Controller
+            name="role"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Select
+                id={`state-select-role`}
+                className="basic-single"
+                isClearable={true}
+                isSearchable={true}
+                isLoading={isLoading}
+                options={rolesData}
+                theme={customTheme}
+                styles={customSelectStyles}
+                value={rolesData.find(option => option.label === value) || null}
+                onChange={(selectedOption) => {
+                  onChange(selectedOption?.label || "");
+                }}
+              />
+            )}
           />
           {
             errors?.role && <small className='text-red-500 text-sm'>{errors?.role?.message}</small>

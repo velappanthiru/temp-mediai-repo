@@ -176,10 +176,8 @@ const onllineExamListColumns = [
 
 const RoleColumns = [
   { name: "S.no", uid: "id" },
-  { name: "Role", uid: "role" },
-  { name: "Description", uid: "description" },
-  { name: "Permission", uid: "permission" },
-  { name: "ACTIONS", uid: "actions" },
+  { name: "Role", uid: "name" },
+  // { name: "ACTIONS", uid: "actions" },
 ];
 
 const RoleData = [
