@@ -8,6 +8,7 @@ import { historyApi } from '@/utils/commonapi';
 import { isSameDay, isToday, subDays, startOfWeek, isAfter, parseISO } from 'date-fns';
 import { MdDashboard } from 'react-icons/md';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 const isUpdatedYesterday = (dateString) => {
   const date = parseISO(dateString);
@@ -18,15 +19,24 @@ const isUpdatedYesterday = (dateString) => {
 const isUpdatedThisWeek = (dateString) => {
   const date = parseISO(dateString);
   const now = new Date();
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday as start of week
+  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
   return isAfter(date, weekStart) || isSameDay(date, weekStart);
+};
+
+const sortByDateDesc = (sessions) => {
+  return sessions.sort((a, b) => {
+    const dateA = parseISO(a.last_updated);
+    const dateB = parseISO(b.last_updated);
+    return dateB - dateA; // Newest first
+  });
 };
 
 const CharboxSidebar = ({ hideMenu }) => {
 
   const [todayData, setTodayData] = useState([]);
   const [yesterdayData, setYesterdayData] = useState([]);
-  const [thisWeekData, setThisWeekData] = useState([]);
+  // const [thisWeekData, setThisWeekData] = useState([]);
+  const router = useRouter();
   const pathname = usePathname(); // Get the current path
   const selector = useSelector(state => state);
   const userRole = selector?.auth?.userInfo?.roleId;
@@ -37,25 +47,42 @@ const CharboxSidebar = ({ hideMenu }) => {
 
       const historyArray = data.sessions || [];
 
-      const todayData = historyArray.filter((item) =>
-        isToday(parseISO(item?.last_updated))
+      // Filter and sort each category in descending order (newest first)
+      const todayData = sortByDateDesc(
+        historyArray.filter((item) =>
+          isToday(parseISO(item?.last_updated))
+        )
       );
 
-      const yesterdayData = historyArray.filter((item) =>
-        isUpdatedYesterday(item?.last_updated)
+      const yesterdayData = sortByDateDesc(
+        historyArray.filter((item) =>
+          isUpdatedYesterday(item?.last_updated)
+        )
       );
 
-      const thisWeekData = historyArray.filter((item) =>
-        isUpdatedThisWeek(item?.last_updated)
-      );
+      // const thisWeekData = historyArray.filter((item) =>
+      //   isUpdatedThisWeek(item?.last_updated)
+      // );
 
       setTodayData(todayData);
       setYesterdayData(yesterdayData);
-      setThisWeekData(thisWeekData);
+      // setThisWeekData(thisWeekData);
     } catch (error) {
       console.log("🚀 ~ fetchHistory ~ error:", error);
     }
   };
+
+  const handleSessionClick = (session) => {
+    const sessionId = session.session_id;
+    if (sessionId) {
+      if (userRole === 1) {
+        router.replace(`/super-admin/chatbot/${sessionId}`);
+      } else {
+        router.replace(`/chatbot/${sessionId}`);
+      }
+    }
+  };
+  console.log(todayData);
 
   useEffect(() => {
     fetchHistory();
@@ -99,7 +126,7 @@ const CharboxSidebar = ({ hideMenu }) => {
                   <ul className='flex flex-col'>
                     {
                       todayData?.map((item, idx) => (
-                        <li key={`today_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
+                        <li key={`today_${idx}`} onClick={() => handleSessionClick(item)} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
                           <span className="w-[calc(100%-0.625rem)] black text-sm text-black dark:text-white line-clamp-1 whitespace-nowrap">{item?.title}</span>
                         </li>
                       ))
@@ -123,7 +150,7 @@ const CharboxSidebar = ({ hideMenu }) => {
                   </ul>
                 </>
               }
-              {
+              {/* {
                 thisWeekData?.length > 0 && <>
                   <div className="title">
                     <h6 className='m-0 text-sm text-neutral-500 dark:text-neutral-400 font-semibold'>Previous 7 Days</h6>
@@ -138,7 +165,7 @@ const CharboxSidebar = ({ hideMenu }) => {
                     }
                   </ul>
                 </>
-              }
+              } */}
             </div>
             {/* Bottom fade overlay */}
           </div>

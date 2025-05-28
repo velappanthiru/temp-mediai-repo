@@ -17,7 +17,6 @@ const AddUser = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [rolesData, setRolesData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const selectRoleRef = useRef();
   const selectStatusRef = useRef();
 
   // Split the current path into segments and filter out empty strings
@@ -80,23 +79,24 @@ const AddUser = () => {
       }
       const response = await userRegisterApi(objData);
       if (response) {
-        reset();
-        setValue('role', null); // Clears the 'role' field
-        setValue('status', null); // Clears the 'status' field
-        selectRoleRef.current.clearValue();
-        selectStatusRef.current.clearValue();
-        setIsButtonDisabled(false);
         toast.success('User created successfully', {
           duration: 4000,
           position: 'top-right',
         });
+        reset();
+        setValue('role', null); // Clears the 'role' field
+        setValue('status', null); // Clears the 'status' field
+        selectStatusRef.current.clearValue();
+        setIsButtonDisabled(false);
+
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.error || "Something went wrong. Please try again.";
+      const errorMessage = error?.response?.data?.data?.message || "Something went wrong. Please try again.";
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: 'top-right',
+      });
 
-      const errorData = {
-        error: errorMessage
-      }
       console.log("🚀 ~ reviewHandleSubmit ~ error:", error);
       handleLoginApiError(error);
     } finally {

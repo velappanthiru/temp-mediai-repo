@@ -6,14 +6,21 @@ import ReactMarkdown from 'react-markdown';
 import { Button, Checkbox, Chip, Input } from '@heroui/react';
 import { TbRefresh } from "react-icons/tb";
 import { LuBrain, LuStethoscope } from 'react-icons/lu';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
-const ChatbotComponent = () => {
+const ChatbotComponent = ({ chatData }) => {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
+  console.log("🚀 ~ ChatbotComponent ~ chatHistory:", chatHistory)
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef(null);
   const inputRef = useRef(null);
   const [isChecked, setIsChecked] = useState(true);
+  const selector = useSelector(state => state);
+  const userRole = selector?.auth?.userInfo?.roleId;
+  const router = useRouter();
+
 
   // Scroll to bottom when chat history updates
   useEffect(() => {
@@ -61,6 +68,13 @@ const ChatbotComponent = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (chatData?.length > 0) {
+      setChatHistory(chatData);
+    }
+  }, [chatData]);
+
+
   const handleToggle = async (payload) => {
     try {
       const { data: { data } } = await toggleApi(payload);
@@ -82,7 +96,14 @@ const ChatbotComponent = () => {
       const response = await newChatAPi();
       if (response) {
         const { data } = response;
+        let sessionId = data?.session_id;
+        localStorage.setItem('chatbotSessionId', sessionId);
         setChatHistory(data?.messages || []);
+        if (userRole === 1) {
+          router.replace(`/super-admin/chatbot/${sessionId}`);
+        } else {
+          router.replace(`/chatbot/${sessionId}`);
+        }
       }
     } catch (error) {
       console.log("🚀 ~ handleNewChatApi ~ error:", error);
@@ -90,10 +111,22 @@ const ChatbotComponent = () => {
   }
 
   const handleRefresh = async () => {
-    if (chatHistory?.length > 1) {
+    if (chatHistory?.length > 0) {
       await handleNewChatApi();
     }
   }
+
+  // Helper function to safely get string content
+  const getStringContent = (content) => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (typeof content === 'object' && content !== null) {
+      return JSON.stringify(content);
+    }
+    return String(content || '');
+  };
+
   return (
     <div className='h-[calc(100vh-7rem)] flex flex-col relative bg-white dark:bg-[#292e32] rounded-xl'>
       <div className='flex justify-end p-4 border-b border-neutral-200 dark:border-neutral-600'>
@@ -173,7 +206,7 @@ const ChatbotComponent = () => {
                             li: ({node, ...props}) => <li className="mb-1" {...props} />
                           }}
                         >
-                          {chat.content}
+                          {getStringContent(chat.content)}
                         </ReactMarkdown>
                       </div>
                     </div>
@@ -185,69 +218,7 @@ const ChatbotComponent = () => {
                     className={`flex flex-col gap-4 ${chat.role === 'user' ? 'justify-end' : 'justify-center'}`}
                   >
                     {
-                      chat?.content?.media_ai &&  <div
-                        className={`max-w-full rounded-2xl px-4 py-3 ${ chat?.role === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : 'bg-gradient-to-br from-purple-50 to-purple-100 dark:bg-gradient-to-br dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-700 shadow-md'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
-                            <LuStethoscope className="text-white w-4 h-4" />
-                          </div>
-                          <span className="text-base font-semibold text-purple-700 dark:text-purple-300">
-                            Medical AI
-                          </span>
-                        </div>
-                        <div className="prose prose-sm dark:prose-invert max-w-none break-words">
-                          <ReactMarkdown
-                            components={{
-                              h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-3 mb-2" {...props} />,
-                              h2: ({node, ...props}) => <h2 className="text-lg font-bold mt-3 mb-2" {...props} />,
-                              h3: ({node, ...props}) => <h3 className="text-md font-bold mt-2 mb-1" {...props} />,
-                              p: ({node, ...props}) => <p className={`${chat?.role === "user" ? "mb-0" : "mb-2"}`} {...props} />,
-                              ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
-                              li: ({node, ...props}) => <li className="mb-1" {...props} />
-                            }}
-                          >
-                            {chat?.content?.media_ai ? chat?.content?.media_ai : chat?.content}
-                          </ReactMarkdown>
-                        </div>
-                      </div>
-                    }
-                    {
-                      chat?.content?.common_ai &&  <div
-                        className={`max-w-full rounded-2xl px-4 py-3 ${ chat?.role === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : 'bg-gradient-to-br from-indigo-50 to-indigo-100 dark:bg-gradient-to-br dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-2xl p-4 border border-indigo-200 dark:border-indigo-700 shadow-md'
-                        }`}
-                      >
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
-                          <LuBrain className="text-white w-4 h-4" />
-                        </div>
-                        <span className="text-base font-semibold text-indigo-700 dark:text-indigo-300">
-                          General AI
-                        </span>
-                      </div>
-                        <div className="prose prose-sm dark:prose-invert max-w-none break-words">
-                          <ReactMarkdown
-                            components={{
-                              h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-3 mb-2" {...props} />,
-                              h2: ({node, ...props}) => <h2 className="text-lg font-bold mt-3 mb-2" {...props} />,
-                              h3: ({node, ...props}) => <h3 className="text-md font-bold mt-2 mb-1" {...props} />,
-                              p: ({node, ...props}) => <p className={`${chat?.role === "user" ? "mb-0" : "mb-2"}`} {...props} />,
-                              ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
-                              li: ({node, ...props}) => <li className="mb-1" {...props} />
-                            }}
-                          >
-                            {chat?.content?.common_ai ? chat?.content?.common_ai : chat?.content}
-                          </ReactMarkdown>
-                        </div>
-                      </div>
-                    }
-                    {
-                      !chat?.content?.media_ai && !chat?.content?.common_ai && <div
+                      !chat?.content?.media_ai && !chat?.content?.common_ai && !chat?.content?.medi_ai && <div
                         className={`max-w-full rounded-2xl px-4 py-3 ${ chat?.role === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                           : 'bg-gradient-to-br from-purple-50 to-purple-100 dark:bg-gradient-to-br dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-700 shadow-md'
                         }`}
@@ -272,12 +243,104 @@ const ChatbotComponent = () => {
                               li: ({node, ...props}) => <li className="mb-1" {...props} />
                             }}
                           >
-                            {chat?.content ? chat?.content : ""}
+                            {getStringContent(chat?.content)}
                           </ReactMarkdown>
                         </div>
                       </div>
                     }
-
+                    {
+                      chat?.content?.media_ai && chat?.content?.media_ai?.trim() !== "" && <div
+                        className={`max-w-full rounded-2xl px-4 py-3 ${ chat?.role === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          : 'bg-gradient-to-br from-purple-50 to-purple-100 dark:bg-gradient-to-br dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-700 shadow-md'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
+                            <LuStethoscope className="text-white w-4 h-4" />
+                          </div>
+                          <span className="text-base font-semibold text-purple-700 dark:text-purple-300">
+                            Medical AI
+                          </span>
+                        </div>
+                        <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+                          <ReactMarkdown
+                            components={{
+                              h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-3 mb-2" {...props} />,
+                              h2: ({node, ...props}) => <h2 className="text-lg font-bold mt-3 mb-2" {...props} />,
+                              h3: ({node, ...props}) => <h3 className="text-md font-bold mt-2 mb-1" {...props} />,
+                              p: ({node, ...props}) => <p className={`${chat?.role === "user" ? "mb-0" : "mb-2"}`} {...props} />,
+                              ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                              li: ({node, ...props}) => <li className="mb-1" {...props} />
+                            }}
+                          >
+                            {getStringContent(chat?.content?.media_ai)}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    }
+                    {
+                      chat?.content?.medi_ai && chat?.content?.medi_ai?.trim() !== "" &&  <div
+                        className={`max-w-full rounded-2xl px-4 py-3 ${ chat?.role === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          : 'bg-gradient-to-br from-purple-50 to-purple-100 dark:bg-gradient-to-br dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-700 shadow-md'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
+                            <LuStethoscope className="text-white w-4 h-4" />
+                          </div>
+                          <span className="text-base font-semibold text-purple-700 dark:text-purple-300">
+                            Medical AI
+                          </span>
+                        </div>
+                        <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+                          <ReactMarkdown
+                            components={{
+                              h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-3 mb-2" {...props} />,
+                              h2: ({node, ...props}) => <h2 className="text-lg font-bold mt-3 mb-2" {...props} />,
+                              h3: ({node, ...props}) => <h3 className="text-md font-bold mt-2 mb-1" {...props} />,
+                              p: ({node, ...props}) => <p className={`${chat?.role === "user" ? "mb-0" : "mb-2"}`} {...props} />,
+                              ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                              li: ({node, ...props}) => <li className="mb-1" {...props} />
+                            }}
+                          >
+                            {getStringContent(chat?.content?.medi_ai)}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    }
+                    {
+                      chat?.content?.common_ai && chat?.content?.common_ai?.trim() !== "" && <div
+                        className={`max-w-full rounded-2xl px-4 py-3 ${ chat?.role === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          : 'bg-gradient-to-br from-indigo-50 to-indigo-100 dark:bg-gradient-to-br dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-2xl p-4 border border-indigo-200 dark:border-indigo-700 shadow-md'
+                        }`}
+                      >
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                          <LuBrain className="text-white w-4 h-4" />
+                        </div>
+                        <span className="text-base font-semibold text-indigo-700 dark:text-indigo-300">
+                          General AI
+                        </span>
+                      </div>
+                        <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+                          <ReactMarkdown
+                            components={{
+                              h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-3 mb-2" {...props} />,
+                              h2: ({node, ...props}) => <h2 className="text-lg font-bold mt-3 mb-2" {...props} />,
+                              h3: ({node, ...props}) => <h3 className="text-md font-bold mt-2 mb-1" {...props} />,
+                              p: ({node, ...props}) => <p className={`${chat?.role === "user" ? "mb-0" : "mb-2"}`} {...props} />,
+                              ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                              li: ({node, ...props}) => <li className="mb-1" {...props} />
+                            }}
+                          >
+                            {getStringContent(chat?.content?.common_ai)}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    }
                   </div>
                 }
               </>
