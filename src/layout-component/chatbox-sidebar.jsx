@@ -7,6 +7,7 @@ import { isSameDay, isToday, subDays, startOfWeek, isAfter, parseISO } from 'dat
 import { MdDashboard } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import { IoMdClose } from "react-icons/io";
 
 const isUpdatedYesterday = (dateString) => {
   const date = parseISO(dateString);
@@ -29,7 +30,7 @@ const sortByDateDesc = (sessions) => {
   });
 };
 
-const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = false, refreshTrigger }) => {
+const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = false, refreshTrigger, isMobileOpen, setIsMobileMenuOpen }) => {
 
   const [todayData, setTodayData] = useState([]);
   const [yesterdayData, setYesterdayData] = useState([]);
@@ -90,8 +91,11 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
   return (
     <>
       <aside
-        id="default-sidebar"
-        className={`hidden lg:flex flex-col lg:fixed top-0 bg-white dark:bg-[#292e32] left-0 z-40 ${hideMenu ? 'w-[0px] overflow-hidden' : 'w-64'}  h-screen transition-transform transition-width -translate-x-full sm:translate-x-0 border-r border-neutral-200 dark:border-neutral-600`}
+       id="default-sidebar"
+       className={`fixed top-0 left-0 z-50 h-screen w-64 bg-white dark:bg-[#292e32] border-r border-neutral-200 dark:border-neutral-600 transform transition-transform duration-300 ease-in-out
+         ${hideMenu ? 'lg:w-0 overflow-hidden' : 'lg:translate-x-0'}
+         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+       `}
         aria-label="Sidebar"
       >
         <div className="logo-wrapper p-4 min-h-20 flex items-center justify-between">
@@ -102,6 +106,9 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
             <span className="text-base font-semibold text-purple-700 dark:text-purple-300">
               Medical AI
             </span>
+          </div>
+          <div className="icon cursor-pointer lg:hidden" onClick={() => setIsMobileMenuOpen(false)}>
+            <IoMdClose className='w-6 h-6 text-black dark:text-white'/>
           </div>
         </div>
 

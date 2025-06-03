@@ -11,6 +11,7 @@ import { errorToLogin, setLoginRequest, setUserDetails } from "@/reducers/auth";
 import CharboxSidebar from "./chatbox-sidebar";
 import ChatbotComponent from "@/components/chatbot/chatbot";
 import { useRouter } from "next/router";
+import ChatbotHeader from "./chatbox-header";
 
 const albertSans = Albert_Sans({
   subsets: ['latin'],
@@ -26,6 +27,7 @@ const ChatBoxLayout = ({ sessionId }) => {
   const userRole = authSelector?.userInfo?.roleId;
   const router = useRouter();
   const [refreshTrigger, setRefreshTrigger] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true); // Runs only on the client
@@ -117,11 +119,11 @@ const ChatBoxLayout = ({ sessionId }) => {
           --albert-font: ${albertSans.style.fontFamily};
         }
       `}</style>
-      <CharboxSidebar hideMenu={sideBar} newChatOnclick={handleRefresh} refreshTrigger={refreshTrigger}/>
+      <CharboxSidebar hideMenu={sideBar} newChatOnclick={handleRefresh} refreshTrigger={refreshTrigger} isMobileOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
 
       <main className={`main-layout ${sideBar ? 'lg:ml-[0] lg:w-full' : 'lg:ml-[16rem] lg:w-[calc(100%-16rem)]'} transition-all bg-[#f1f1f1] dark:bg-[#1a1d21] h-dvh overflow-y-auto`}>
-        <Header onClickSideBar={handleSideBar} />
+        <ChatbotHeader onClickSideBar={handleSideBar} setIsMobileMenuOpen={setIsMobileMenuOpen} />
         <section className={`main-section`}>
           <ChatbotComponent chatData={chatData} />
         </section>
