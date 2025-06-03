@@ -31,8 +31,7 @@ const sortByDateDesc = (sessions) => {
   });
 };
 
-const CharboxSidebar = ({ hideMenu }) => {
-
+const CharboxSidebar = ({ hideMenu, newChatOnclick = () => {}, disabledNew=false, refreshTrigger }) => {
   const [todayData, setTodayData] = useState([]);
   const [yesterdayData, setYesterdayData] = useState([]);
   // const [thisWeekData, setThisWeekData] = useState([]);
@@ -45,7 +44,7 @@ const CharboxSidebar = ({ hideMenu }) => {
     try {
       const { data } = await historyApi();
 
-      const historyArray = data.sessions || [];
+      const historyArray = data || [];
 
       // Filter and sort each category in descending order (newest first)
       const todayData = sortByDateDesc(
@@ -73,7 +72,7 @@ const CharboxSidebar = ({ hideMenu }) => {
   };
 
   const handleSessionClick = (session) => {
-    const sessionId = session.session_id;
+    const sessionId = session.id;
     if (sessionId) {
       if (userRole === 1) {
         router.replace(`/super-admin/chatbot/${sessionId}`);
@@ -82,16 +81,18 @@ const CharboxSidebar = ({ hideMenu }) => {
       }
     }
   };
-  console.log(todayData);
+
 
   useEffect(() => {
     fetchHistory();
-  }, [])
+  }, [refreshTrigger])
+
+
   return (
     <>
       <aside
         id="default-sidebar"
-        className={`hidden lg:flex flex-col lg:fixed top-0 bg-white dark:bg-[#292e32] left-0 z-40 ${hideMenu ? 'w-[0px] overflow-hidden' : 'w-64'}  h-screen transition-transform transition-width -translate-x-full sm:translate-x-0`}
+        className={`hidden lg:flex flex-col lg:fixed top-0 bg-white dark:bg-[#292e32] left-0 z-40 ${hideMenu ? 'w-[0px] overflow-hidden' : 'w-64'}  h-screen transition-transform transition-width -translate-x-full sm:translate-x-0 border-r border-neutral-200 dark:border-neutral-600`}
         aria-label="Sidebar"
       >
         <div className="logo-wrapper p-4 min-h-20 flex items-center justify-between">
@@ -106,8 +107,10 @@ const CharboxSidebar = ({ hideMenu }) => {
         </div>
 
         <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col">
-          {/* <div className="p-4">
+          <div className="p-4">
             <Button
+              disabled={disabledNew}
+              onPress={newChatOnclick}
               className='bg-purple-600 text-white w-full'
               startContent={
                 <PlusIcon className="w-6 h-6" />
@@ -115,7 +118,7 @@ const CharboxSidebar = ({ hideMenu }) => {
             >
               New Chat
             </Button>
-          </div> */}
+          </div>
           <div className="relative flex flex-col gap-4 p-4 h-[calc(100%-60px)] overflow-y-auto">
             <div className="flex flex-col gap-3 pb-8">
               {
@@ -142,7 +145,7 @@ const CharboxSidebar = ({ hideMenu }) => {
                   <ul className='flex flex-col'>
                     {
                       yesterdayData?.map((item, idx) => (
-                        <li key={`yesterday_${idx}`} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
+                        <li key={`yesterday_${idx}`} onClick={() => handleSessionClick(item)} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
                           <span className="w-[calc(100%-0.625rem)] black text-sm text-black dark:text-white line-clamp-1 whitespace-nowrap">{item?.title}</span>
                         </li>
                       ))

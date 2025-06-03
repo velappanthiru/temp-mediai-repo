@@ -5,11 +5,12 @@ import Header from "./header";
 
 import { Albert_Sans } from 'next/font/google'
 import { getCookies } from "@/utils/cookies";
-import { useDispatch } from "react-redux";
-import { sessionIdApi, userMe } from "@/utils/commonapi";
+import { useDispatch, useSelector } from "react-redux";
+import { newChatAPi, sessionIdApi, userMe } from "@/utils/commonapi";
 import { errorToLogin, setLoginRequest, setUserDetails } from "@/reducers/auth";
 import CharboxSidebar from "./chatbox-sidebar";
 import ChatbotComponent from "@/components/chatbot/chatbot";
+import { useRouter } from "next/router";
 
 const albertSans = Albert_Sans({
   subsets: ['latin'],
@@ -21,10 +22,15 @@ const ChatBoxLayout = ({ sessionId }) => {
   const [isClient, setIsClient] = useState(false);
   const [sideBar, setSideBar] = useState(false);
   const [chatData, setChatData] = useState([]);
+  const selector = useSelector(state => state);
+  const userRole = selector?.auth?.userInfo?.roleId;
+  const router = useRouter();
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   useEffect(() => {
     setIsClient(true); // Runs only on the client
   }, []);
+
   const handleSideBar = () => {
     const newState = !sideBar;
     setSideBar(newState);
@@ -78,6 +84,30 @@ const ChatBoxLayout = ({ sessionId }) => {
   }, [sessionId]);
 
 
+  const handleNewChatApi = async () => {
+    try {
+      const response = await newChatAPi();
+      if (response) {
+        const { data } = response;
+        let sessionId = data?.session_id;
+        localStorage.setItem('chatbotSessionId', sessionId);
+        setChatData(data?.messages || []);
+        if (userRole === 1) {
+          router.replace(`/super-admin/chatbot/${sessionId}`);
+        } else {
+          router.replace(`/chatbot/${sessionId}`);
+        }
+      }
+    } catch (error) {
+      console.log("🚀 ~ handleNewChatApi ~ error:", error);
+    }
+  }
+
+  const handleRefresh = async () => {
+    await handleNewChatApi();
+    setRefreshTrigger(prev => !prev);
+  }
+
   if (!isClient) return null; // Avoid rendering server-side
 
   return (
@@ -87,12 +117,13 @@ const ChatBoxLayout = ({ sessionId }) => {
           --albert-font: ${albertSans.style.fontFamily};
         }
       `}</style>
-      <CharboxSidebar hideMenu={sideBar} />
+      <CharboxSidebar hideMenu={sideBar} newChatOnclick={handleRefresh} refreshTrigger={refreshTrigger}/>
+
 
       <main className={`main-layout ${sideBar ? 'lg:ml-[0] lg:w-full' : 'lg:ml-[16rem] lg:w-[calc(100%-16rem)]'} transition-all bg-[#f1f1f1] dark:bg-[#1a1d21] h-dvh overflow-y-auto`}>
         <Header onClickSideBar={handleSideBar} />
-        <section className={`main-section p-4`}>
-        <ChatbotComponent chatData={chatData}/>
+        <section className={`main-section`}>
+          <ChatbotComponent chatData={chatData} />
         </section>
       </main>
     </>

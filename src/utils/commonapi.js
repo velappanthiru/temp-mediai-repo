@@ -23,6 +23,7 @@ export const historyApi = () => aiBaseAxios.get('/ai/sessions');
 export const sessionIdApi = (sessionId) => aiBaseAxios.get(`/ai/session/${sessionId}`);
 export const bookTopicsandTitleApi = () => aiBaseAxios.get('/ai/books');
 export const generateQuestionsApi = (data) => aiBaseAxios.post('/ai/generate-questions', data);
+export const imageToText = (data) => aiBaseAxios.post('/ai/ocr', data);
 export const storeQuestionsApi = (data) => appAxios.post('/api/generate-questions', data);
 export const activeExamsApi = () => appAxios.get('/api/exams');
 export const getExamDetailsById = (id) => appAxios.get(`/api/question/${id}`);
