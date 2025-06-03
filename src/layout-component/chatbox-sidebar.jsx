@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Link } from '@heroui/react';
-import { IoIosArrowRoundBack } from 'react-icons/io';
-import { usePathname } from 'next/navigation';
 import { PlusIcon } from '@/utils/icon';
 import { LuStethoscope } from 'react-icons/lu';
 import { historyApi } from '@/utils/commonapi';
@@ -31,14 +29,16 @@ const sortByDateDesc = (sessions) => {
   });
 };
 
-const CharboxSidebar = ({ hideMenu, newChatOnclick = () => {}, disabledNew=false, refreshTrigger }) => {
+const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = false, refreshTrigger }) => {
+
   const [todayData, setTodayData] = useState([]);
   const [yesterdayData, setYesterdayData] = useState([]);
   // const [thisWeekData, setThisWeekData] = useState([]);
   const router = useRouter();
-  const pathname = usePathname(); // Get the current path
   const selector = useSelector(state => state);
   const userRole = selector?.auth?.userInfo?.roleId;
+  const sessionId = router.query.sessionId;
+  console.log("🚀 ~ CharboxSidebar ~ sessionId:", sessionId)
 
   const fetchHistory = async () => {
     try {
@@ -129,7 +129,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => {}, disabledNew=false
                   <ul className='flex flex-col'>
                     {
                       todayData?.map((item, idx) => (
-                        <li key={`today_${idx}`} onClick={() => handleSessionClick(item)} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
+                        <li key={`today_${idx}`} onClick={() => handleSessionClick(item)} className={`px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer ${sessionId === item?.id ? "bg-zinc-100 dark:bg-zinc-700" : ""}`}>
                           <span className="w-[calc(100%-0.625rem)] black text-sm text-black dark:text-white line-clamp-1 whitespace-nowrap">{item?.title}</span>
                         </li>
                       ))
@@ -145,7 +145,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => {}, disabledNew=false
                   <ul className='flex flex-col'>
                     {
                       yesterdayData?.map((item, idx) => (
-                        <li key={`yesterday_${idx}`} onClick={() => handleSessionClick(item)} className='px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer'>
+                        <li key={`yesterday_${idx}`} onClick={() => handleSessionClick(item)} className={`px-2.5 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer ${sessionId === item?.id ? "bg-zinc-100 dark:bg-zinc-700" : ""}`}>
                           <span className="w-[calc(100%-0.625rem)] black text-sm text-black dark:text-white line-clamp-1 whitespace-nowrap">{item?.title}</span>
                         </li>
                       ))
