@@ -19,8 +19,8 @@ const Sidebar = ({ hideMenu }) => {
   const pathname = usePathname(); // Get the current path
   const dispatch = useDispatch();
   const router = useRouter();
-  const selector = useSelector(state => state);
-  const userRole = selector?.auth?.userInfo?.roleId;
+  const authSelector = useSelector(state => state?.auth);
+  const userRole = authSelector?.userInfo?.roleId;
 
 
   const handleLogout = () => {

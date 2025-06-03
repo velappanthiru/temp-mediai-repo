@@ -35,10 +35,9 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
   const [yesterdayData, setYesterdayData] = useState([]);
   // const [thisWeekData, setThisWeekData] = useState([]);
   const router = useRouter();
-  const selector = useSelector(state => state);
-  const userRole = selector?.auth?.userInfo?.roleId;
+  const authSelector = useSelector(state => state?.auth);
+  const userRole = authSelector?.userInfo?.roleId;
   const sessionId = router.query.sessionId;
-  console.log("🚀 ~ CharboxSidebar ~ sessionId:", sessionId)
 
   const fetchHistory = async () => {
     try {

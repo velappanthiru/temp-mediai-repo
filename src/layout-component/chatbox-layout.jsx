@@ -22,8 +22,8 @@ const ChatBoxLayout = ({ sessionId }) => {
   const [isClient, setIsClient] = useState(false);
   const [sideBar, setSideBar] = useState(false);
   const [chatData, setChatData] = useState([]);
-  const selector = useSelector(state => state);
-  const userRole = selector?.auth?.userInfo?.roleId;
+  const authSelector = useSelector(state => state?.auth);
+  const userRole = authSelector?.userInfo?.roleId;
   const router = useRouter();
   const [refreshTrigger, setRefreshTrigger] = useState(false);
 

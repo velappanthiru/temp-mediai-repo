@@ -18,8 +18,8 @@ const ChatbotComponent = ({ chatData }) => {
   const chatContainerRef = useRef(null);
   const inputRef = useRef(null);
   const [isChecked, setIsChecked] = useState(true);
-  const selector = useSelector(state => state);
-  const userRole = selector?.auth?.userInfo?.roleId;
+  const authSelector = useSelector(state => state?.auth);
+  const userRole = authSelector?.userInfo?.roleId;
   const router = useRouter();
   const fileInputRef = useRef(null);
 
@@ -188,7 +188,6 @@ const ChatbotComponent = ({ chatData }) => {
       setPreview(null);
     }
   }
-  console.log(chatHistory, "chatHistory");
 
   const formatMedicalReport = (reportArray) => {
     if (!Array.isArray(reportArray)) return reportArray;
