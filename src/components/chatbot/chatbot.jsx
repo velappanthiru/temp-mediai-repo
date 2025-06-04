@@ -213,7 +213,7 @@ const ChatbotComponent = ({ chatData }) => {
   };
 
   return (
-    <div className='h-[calc(100vh-5rem)] flex flex-col relative bg-white dark:bg-[#292e32]'>
+    <div className='h-[calc(100vh-80px)] flex flex-col relative bg-white dark:bg-[#292e32]'>
       {/* <div className='flex justify-end p-4 border-b border-neutral-200 dark:border-neutral-600'>
         <div className={`p-4 text-black dark:text-white ${chatHistory?.length === 0 ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
           onClick={handleRefresh}

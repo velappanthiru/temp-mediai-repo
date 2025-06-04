@@ -122,7 +122,7 @@ const ChatBoxLayout = ({ sessionId }) => {
       <CharboxSidebar hideMenu={sideBar} newChatOnclick={handleRefresh} refreshTrigger={refreshTrigger} isMobileOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
 
-      <main className={`main-layout ${sideBar ? 'lg:ml-[0] lg:w-full' : 'lg:ml-[16rem] lg:w-[calc(100%-16rem)]'} transition-all bg-[#f1f1f1] dark:bg-[#1a1d21] h-dvh overflow-y-auto`}>
+      <main className={`main-layout ${sideBar ? 'lg:ml-[0] lg:w-full' : 'lg:ml-[16rem] lg:w-[calc(100%-16rem)]'} transition-all bg-[#f1f1f1] dark:bg-[#1a1d21] h-dvh`}>
         <ChatbotHeader onClickSideBar={handleSideBar} setIsMobileMenuOpen={setIsMobileMenuOpen} />
         <section className={`main-section`}>
           <ChatbotComponent chatData={chatData} />
