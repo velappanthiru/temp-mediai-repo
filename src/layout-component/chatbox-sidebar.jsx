@@ -112,7 +112,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
           </div>
         </div>
 
-        <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col">
+        <div className="h-[calc(100dvh-80px)] overflow-hidden flex flex-col">
           <div className="p-4">
             <Button
               disabled={disabledNew}
