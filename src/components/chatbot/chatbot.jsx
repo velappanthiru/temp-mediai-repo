@@ -12,8 +12,8 @@ import { useRouter } from 'next/router';
 const ChatbotComponent = ({ chatData }) => {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
-  const [preview, setPreview] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState([]);
+  const [imageFile, setImageFile] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef(null);
   const inputRef = useRef(null);
@@ -103,34 +103,50 @@ const ChatbotComponent = ({ chatData }) => {
   };
 
   const handleFileUpload = (event) => {
-    console.log("🚀 ~ handleFileUpload ~ event:", event)
-    const file = event.target.files[0];
-    if (!file) return;
+    console.log("🚀 ~ handleFileUpload ~ event:", event);
+    const files = Array.from(event.target.files); // Convert FileList to Array
+    if (!files.length) return;
 
-    // Check if it's an image
-    const isImage = file.type.startsWith('image/');
-    const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
+    const validFiles = [];
+    const invalidFiles = [];
 
-    if (!isImage) {
-      alert('Please select only image files');
-      return;
+    files.forEach(file => {
+      // Check if it's an image
+      const isImage = file.type.startsWith('image/');
+      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
+
+      if (!isImage) {
+        invalidFiles.push(`${file.name} - Not an image file`);
+        return;
+      }
+
+      if (!isValidSize) {
+        invalidFiles.push(`${file.name} - File size exceeds 10MB`);
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    // Show alerts for invalid files
+    if (invalidFiles.length > 0) {
+      alert(`The following files were rejected:\n${invalidFiles.join('\n')}`);
     }
 
-    if (!isValidSize) {
-      alert('File size should be less than 10MB');
-      return;
-    }
+    if (validFiles.length > 0) {
+      const newFileObjects = validFiles.map(file => ({
+        file,
+        id: Date.now() + Math.random() + file.name, // Unique ID
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        preview: URL.createObjectURL(file)
+      }));
 
-    const fileObject = {
-      file,
-      id: Date.now() + Math.random(),
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      preview: URL.createObjectURL(file)
-    };
-    setImageFile(file);
-    setPreview(fileObject); // Replace existing file (single upload only)
+      // Add to existing files instead of replacing
+      setImageFile(prev => Array.isArray(prev) ? [...prev, ...validFiles] : [...validFiles]);
+      setPreview(prev => Array.isArray(prev) ? [...prev, ...newFileObjects] : [...newFileObjects]);
+    }
 
     // Clear the input
     if (fileInputRef.current) {
@@ -148,7 +164,15 @@ const ChatbotComponent = ({ chatData }) => {
   };
 
   const removeAttachedFile = (id) => {
-    setPreview(null);
+   // Remove from both arrays
+   setPreview(prev => prev.filter(p => p.id !== id));
+   setImageFile(prev => {
+     const previewIndex = preview.findIndex(p => p.id === id);
+     if (previewIndex !== -1) {
+       return prev.filter((_, index) => index !== previewIndex);
+     }
+     return prev;
+   });
   };
 
   const onSubmitImageToText = async () => {
@@ -157,19 +181,22 @@ const ChatbotComponent = ({ chatData }) => {
     // Update UI immediately for better UX
     const userChatMessage = {
       role: 'user',
-      attachment: preview ? {
+      attachments: preview.map(preview => ({ // Changed to attachments array
         type: preview.type,
         name: preview.name,
         size: preview.size,
         preview: preview.preview
-      } : null
+      }))
     };
     setChatHistory(prev => [...prev, userChatMessage]);
 
     try {
       if (imageFile) {
         const formData = new FormData();
-        formData.append("file", imageFile);
+        imageFile.forEach((image) => {
+          formData.append("files", image); // use file[]
+        });
+
         const response = await imageToText(formData);
         const data = response?.data?.texts;
         const assistantChatMessage = {
@@ -279,19 +306,22 @@ const ChatbotComponent = ({ chatData }) => {
                             : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200'
                       }`}
                     >
-                      {chat?.attachment && (
+                      {/* Handle multiple attachments */}
+                      {chat?.attachments && chat.attachments.length > 0 && (
                         <div className="mb-3 space-y-2">
-                          <div className="flex items-center gap-2 bg-white/10 rounded-lg p-2">
-                            <img
-                              src={chat?.attachment?.preview}
-                              alt={chat?.attachment?.name}
-                              className="w-16 h-16 object-cover rounded"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{chat?.attachment?.name}</p>
-                              <p className="text-xs opacity-75">{formatFileSize(chat?.attachment?.size)}</p>
+                          {chat.attachments.map((attachment, attachIndex) => (
+                            <div key={attachIndex} className="flex items-center gap-2 bg-white/10 rounded-lg p-2">
+                              <img
+                                src={attachment?.preview}
+                                alt={attachment?.name}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{attachment?.name}</p>
+                                <p className="text-xs opacity-75">{formatFileSize(attachment?.size)}</p>
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       )}
                       <div className="prose prose-sm dark:prose-invert max-w-none break-words">
@@ -498,33 +528,35 @@ const ChatbotComponent = ({ chatData }) => {
       <div className='absolute left-4 right-4 bottom-0'>
         <form onSubmit={handleSubmit} className='shadow rounded-2xl border border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-zinc-800 p-4 mx-auto w-full md:max-w-3xl lg:max-w-[42rem] xl:max-w-[50rem]'>
           <div className='flex flex-col gap-3'>
-            {preview && (
-              <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-                <div
-                  key={preview.id}
-                  className="relative flex items-center gap-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg p-2 pr-8"
-                >
-                  {preview.type.startsWith('image/') && (
-                    <img
-                      src={preview.preview}
-                      alt={preview.name}
-                      className="w-10 h-10 object-cover rounded"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate max-w-[120px]">{preview.name}</p>
-                    <p className="text-xs text-gray-500">{formatFileSize(preview.size)}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeAttachedFile(preview.id)}
-                    className="absolute top-1 right-1 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs"
-                  >
-                    <FiX className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            )}
+            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+              {preview && preview?.length > 0 && (
+                preview?.map((image, index) => (
+                    <div
+                      key={image.id}
+                      className="relative flex items-center gap-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg p-2 pr-8"
+                    >
+                      {image.type.startsWith('image/') && (
+                        <img
+                          src={image.preview}
+                          alt={image.name}
+                          className="w-10 h-10 object-cover rounded"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate max-w-[120px]">{image.name}</p>
+                        <p className="text-xs text-gray-500">{formatFileSize(image.size)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeAttachedFile(image.id)}
+                        className="absolute top-1 right-1 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs"
+                      >
+                        <FiX className="w-3 h-3" />
+                      </button>
+                    </div>
+                ))
+              )}
+            </div>
             <div className="flex items-center gap-3">
               <Input
                 ref={inputRef}
@@ -558,6 +590,7 @@ const ChatbotComponent = ({ chatData }) => {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleFileUpload}
                 className="hidden"
               />
@@ -570,7 +603,7 @@ const ChatbotComponent = ({ chatData }) => {
                 Use Base Model
               </Checkbox>
               {
-                !preview ? <button
+                preview?.length === 0 ? <button
                   type="submit"
                   className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-purple-600 text-white ${
                     message.trim()
