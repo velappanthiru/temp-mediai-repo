@@ -103,7 +103,6 @@ const ChatbotComponent = ({ chatData }) => {
   };
 
   const handleFileUpload = (event) => {
-    console.log("🚀 ~ handleFileUpload ~ event:", event);
     const files = Array.from(event.target.files); // Convert FileList to Array
     if (!files.length) return;
 

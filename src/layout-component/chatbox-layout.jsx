@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Header from "./header";
-
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Albert_Sans } from 'next/font/google'
 import { getCookies } from "@/utils/cookies";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,30 +17,82 @@ const albertSans = Albert_Sans({
 });
 
 const ChatBoxLayout = ({ sessionId }) => {
-
   const [isClient, setIsClient] = useState(false);
   const [sideBar, setSideBar] = useState(false);
   const [chatData, setChatData] = useState([]);
-  const authSelector = useSelector(state => state?.auth);
-  const userRole = authSelector?.userInfo?.roleId;
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true); // Runs only on the client
-  }, []);
-
-  const handleSideBar = () => {
-    const newState = !sideBar;
-    setSideBar(newState);
-  };
+  const authSelector = useSelector(state => state?.auth);
+  const userRole = authSelector?.userInfo?.roleId;
+  const router = useRouter();
   const dispatch = useDispatch();
   const token = getCookies();
-  const onetimeRef = useRef(true)
+  const onetimeRef = useRef(true);
 
   useEffect(() => {
-    // Get the token from the cookie
+    setIsClient(true);
+  }, []);
+
+  const handleSideBar = useCallback(() => {
+    setSideBar(prevState => !prevState);
+  }, []);
+
+  // Memoized API calls
+  const handleSessionBasedAnswer = useCallback(async (sessionId) => {
+    if (!sessionId) return;
+
+    try {
+      setIsLoading(true);
+      const response = await sessionIdApi(sessionId);
+      if (response) {
+        setChatData(response?.data?.messages || []);
+      }
+    } catch (error) {
+      console.error("handleSessionBasedAnswer error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handleNewChatApi = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await newChatAPi();
+      if (response) {
+        const { data } = response;
+        const newSessionId = data?.session_id;
+
+        // Safe localStorage usage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('chatbotSessionId', newSessionId);
+        }
+
+        setChatData(data?.messages || []);
+
+        // Navigate based on user role
+        const targetPath = userRole === 1
+          ? `/super-admin/chatbot/${newSessionId}`
+          : `/chatbot/${newSessionId}`;
+
+        router.replace(targetPath);
+      }
+    } catch (error) {
+      console.error("handleNewChatApi error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userRole, router]);
+
+  const handleRefresh = useCallback(async () => {
+    await handleNewChatApi();
+    setRefreshTrigger(prev => !prev);
+    setIsMobileMenuOpen(false);
+  }, [handleNewChatApi]);
+
+  // User authentication effect
+  useEffect(() => {
     if (token && onetimeRef.current) {
       const getUserMe = async () => {
         try {
@@ -50,67 +100,29 @@ const ChatBoxLayout = ({ sessionId }) => {
           const response = await userMe();
           if (response) {
             const { data: { data } } = response;
-            const objData = {
-              userInfo: data,
-            }
+            const objData = { userInfo: data };
             dispatch(setUserDetails(objData));
           }
         } catch (error) {
-          const errorData = {
-            error: error
-          }
+          const errorData = { error };
           dispatch(errorToLogin(errorData));
-          console.log("🚀 ~ getUserMe:", error)
+          console.error("getUserMe error:", error);
         }
-      }
+      };
       getUserMe();
       onetimeRef.current = false;
     }
-  }, [dispatch, token])
+  }, [dispatch, token]);
 
-  const handleSessionBasedAnswer = async (sessionId) => {
-    try {
-      const response = await sessionIdApi(sessionId);
-      if (response) {
-        setChatData(response?.data?.messages);
-      }
-    } catch (error) {
-      console.log("🚀 ~ handleSessionBasedAnswer ~ error:", error)
-    }
-  }
-
+  // Session-based data loading effect
   useEffect(() => {
     if (sessionId) {
-      handleSessionBasedAnswer(sessionId)
+      handleSessionBasedAnswer(sessionId);
     }
-  }, [sessionId]);
+  }, [sessionId, handleSessionBasedAnswer]);
 
-
-  const handleNewChatApi = async () => {
-    try {
-      const response = await newChatAPi();
-      if (response) {
-        const { data } = response;
-        let sessionId = data?.session_id;
-        localStorage.setItem('chatbotSessionId', sessionId);
-        setChatData(data?.messages || []);
-        if (userRole === 1) {
-          router.replace(`/super-admin/chatbot/${sessionId}`);
-        } else {
-          router.replace(`/chatbot/${sessionId}`);
-        }
-      }
-    } catch (error) {
-      console.log("🚀 ~ handleNewChatApi ~ error:", error);
-    }
-  }
-
-  const handleRefresh = async () => {
-    await handleNewChatApi();
-    setRefreshTrigger(prev => !prev);
-  }
-
-  if (!isClient) return null; // Avoid rendering server-side
+  // Prevent server-side rendering issues
+  if (!isClient) return null;
 
   return (
     <>
@@ -119,13 +131,30 @@ const ChatBoxLayout = ({ sessionId }) => {
           --albert-font: ${albertSans.style.fontFamily};
         }
       `}</style>
-      <CharboxSidebar hideMenu={sideBar} newChatOnclick={handleRefresh} refreshTrigger={refreshTrigger} isMobileOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
+      <CharboxSidebar
+        hideMenu={sideBar}
+        newChatOnclick={handleRefresh}
+        refreshTrigger={refreshTrigger}
+        isMobileOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
 
-      <main className={`main-layout ${sideBar ? 'lg:ml-[0] lg:w-full' : 'lg:ml-[16rem] lg:w-[calc(100%-16rem)]'} transition-all bg-[#f1f1f1] dark:bg-[#1a1d21] h-dvh overflow-hidden`}>
-        <ChatbotHeader onClickSideBar={handleSideBar} setIsMobileMenuOpen={setIsMobileMenuOpen} />
-        <section className={`main-section`}>
-          <ChatbotComponent chatData={chatData} />
+      <main className={`main-layout ${
+        sideBar
+          ? 'lg:ml-[0] lg:w-full'
+          : 'lg:ml-[16rem] lg:w-[calc(100%-16rem)]'
+        } transition-all bg-[#f1f1f1] dark:bg-[#1a1d21] h-dvh overflow-hidden`}
+      >
+        <ChatbotHeader
+          onClickSideBar={handleSideBar}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+        />
+
+        <section className="main-section">
+          <ChatbotComponent
+            chatData={chatData}
+          />
         </section>
       </main>
     </>
@@ -133,4 +162,3 @@ const ChatBoxLayout = ({ sessionId }) => {
 };
 
 export default ChatBoxLayout;
-

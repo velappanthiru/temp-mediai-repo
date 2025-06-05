@@ -73,6 +73,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
 
   const handleSessionClick = (session) => {
     const sessionId = session.id;
+    setIsMobileMenuOpen(false);
     if (sessionId) {
       if (userRole === 1) {
         router.replace(`/super-admin/chatbot/${sessionId}`);
