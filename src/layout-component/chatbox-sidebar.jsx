@@ -92,7 +92,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
     <>
       <aside
        id="default-sidebar"
-       className={`fixed top-0 left-0 z-50 h-screen w-64 bg-white dark:bg-[#292e32] border-r border-neutral-200 dark:border-neutral-600 transform transition-transform duration-300 ease-in-out
+       className={`fixed top-0 left-0 z-50 h-dvh w-64 bg-white dark:bg-[#292e32] border-r border-neutral-200 dark:border-neutral-600 transform transition-transform duration-300 ease-in-out
          ${hideMenu ? 'lg:w-0 overflow-hidden' : 'lg:translate-x-0'}
          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
        `}
