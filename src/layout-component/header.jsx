@@ -265,7 +265,7 @@ const Header = ({
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/user'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/user') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/super-admin/patient-details'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/patient-details') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <LuBookUp className='w-6 h-6'/>
                         <span>Patient 360</span>
                       </Link>
