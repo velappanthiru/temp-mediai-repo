@@ -72,7 +72,7 @@ const MenuAccessTab = () => {
 
       default:
         // For roles like super_admin, admin, etc.
-        const isChecked = item.permission.includes(columnKey);
+        const isChecked = item.permission.includes(Number(columnKey));
         const isAdmin = String(columnKey) === "1" ? true : false;
         return (
          isAdmin ?  <Tooltip content="Super admin have default access for all menus" showArrow={true}>
