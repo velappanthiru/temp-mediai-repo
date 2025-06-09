@@ -1,39 +1,51 @@
 // middleware.js (or .ts if you prefer)
-
-// Note: Next.js automatically handles parsing NextRequest — no need to import types
 import { NextResponse } from 'next/server';
 
 export async function middleware(request) {
+  const { pathname, origin } = request.nextUrl;
+
   const cookieValue = request.cookies.get('mediai_token')?.value;
   let accessToken, role;
 
-  try {
-    const parsed = JSON.parse(cookieValue);
-    accessToken = parsed?.accessToken;
-    role = parsed?.role;
-  } catch {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  // If missing credentials, send to login
-  if (!accessToken || !role) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  const { pathname } = request.nextUrl;
-
-  // If authenticated, block base route
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  // Skip middleware for system/public files/routes
+  // Skip middleware for system/public files/routes first
   const excluded = ['/_next', '/favicon.ico', '/api', '/login', '/404', '/.well-known'];
   if (excluded.some(p => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  // Fetch role-based permissions
+  // Parse cookie if it exists
+  if (cookieValue) {
+    try {
+      const parsed = JSON.parse(cookieValue);
+      accessToken = parsed?.accessToken;
+      role = parsed?.role;
+    } catch {
+      // Invalid cookie, treat as no cookie
+      // Clear the invalid cookie and redirect to home
+      const response = NextResponse.redirect(new URL('/', request.url));
+      response.cookies.delete('mediai_token');
+      return response;
+    }
+  }
+
+  // Handle homepage - allow access regardless of auth status
+  if (pathname === '/') {
+    // If user is authenticated, redirect to dashboard
+    if (cookieValue && accessToken && role) {
+      console.log('Authenticated user accessing home, redirecting to dashboard');
+      return NextResponse.redirect(new URL('/dashboard', origin));
+    }
+    // If not authenticated, allow access to home/login page
+    return NextResponse.next();
+  }
+
+  // For all other routes, require authentication
+  if (!cookieValue || !accessToken || !role) {
+    console.log('No valid authentication, redirecting to login');
+    return NextResponse.redirect(new URL('/', origin));
+  }
+
+  // Fetch role-based permissions for authenticated users
   try {
     const apiUrl = `https://doctorjebasingh.in/api/roles/${role}/permissions`;
     const res = await fetch(apiUrl, {
@@ -47,6 +59,7 @@ export async function middleware(request) {
 
     const data = await res.json();
     const allowed = new Set(['/dashboard']);
+
     for (const menu of data.menus || []) {
       if (menu.path) allowed.add(menu.path);
       for (const child of menu.children || []) {
