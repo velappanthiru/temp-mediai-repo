@@ -75,11 +75,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
     const sessionId = session.id;
     setIsMobileMenuOpen(false);
     if (sessionId) {
-      if (userRole === 1) {
-        router.replace(`/super-admin/chatbot/${sessionId}`);
-      } else {
-        router.replace(`/chatbot/${sessionId}`);
-      }
+      router.replace(`/chatbot/${sessionId}`);
     }
   };
 
@@ -184,7 +180,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
 
             <ul>
               <li>
-                <Link href={userRole === 1 ? "/super-admin/book-list": "/online-exam"} className={`text-base font-normal flex items-center gap-3 p-4 text-purple-600 dark:text-white`}>
+                <Link href="/dashboard" className={`text-base font-normal flex items-center gap-3 p-4 text-purple-600 dark:text-white`}>
                   <MdDashboard className='w-6 h-6'/>
                   <span className={`${hideMenu ? 'hidden' : ''}`}>DashBoard</span>
                 </Link>

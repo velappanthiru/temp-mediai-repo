@@ -72,9 +72,7 @@ const ChatBoxLayout = ({ sessionId }) => {
         setChatData(data?.messages || []);
 
         // Navigate based on user role
-        const targetPath = userRole === 1
-          ? `/super-admin/chatbot/${newSessionId}`
-          : `/chatbot/${newSessionId}`;
+        const targetPath = `/chatbot/${newSessionId}`;
 
         router.replace(targetPath);
       }

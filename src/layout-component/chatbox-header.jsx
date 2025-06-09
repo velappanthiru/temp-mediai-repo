@@ -246,19 +246,19 @@ const ChatbotHeader = ({
                 userRole === 1 ? <>
                   <ul className='flex flex-col'>
                     <li>
-                      <Link href={'/super-admin/chatbot'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/chatbot') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/chatbot'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/chatbot') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <IoChatboxEllipsesOutline className='w-6 h-6'/>
                         <span>Chat Bot</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/book-list'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/book-list') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/book-list'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/book-list') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <LuBookUp className='w-6 h-6'/>
                         <span>Book List</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/user'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/user') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/user'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/user') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
@@ -266,31 +266,31 @@ const ChatbotHeader = ({
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/user'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/user') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/user'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/user') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <LuBookUp className='w-6 h-6'/>
                         <span>Patient 360</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/online-exam'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/online-exam') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/questions'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/questions') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <PiExam className='w-6 h-6'/>
                         <span>Online Exam</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/lesson-plan'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/lesson-plan') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/lesson-plan'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/lesson-plan') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <MdOutlineLibraryBooks className='w-6 h-6'/>
                         <span>Lesson Plan</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/reports'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/reports'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <MdReportGmailerrorred className='w-6 h-6'/>
                         <span>Reports</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href={'/super-admin/role-and-permission'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/role-and-permission'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/reports') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <MdReportGmailerrorred className='w-6 h-6'/>
                         <span>Roles and Permission</span>
                       </Link>
@@ -299,14 +299,14 @@ const ChatbotHeader = ({
                 </> : <>
                   <ul className='flex flex-col'>
                     <li>
-                      <Link href={'/chatbot'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/chatbot') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/chatbot'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/chatbot') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <IoChatboxEllipsesOutline className='w-6 h-6'/>
                         <span>Chat Bot</span>
                       </Link>
                     </li>
 
                     <li>
-                      <Link href={'/online-exam'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/super-admin/online-exam') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
+                      <Link href={'/online-exam'} className={`text-base font-normal flex items-center gap-3 p-4 ${pathname?.startsWith('/online-exam') ? "text-[#7E41A2]" : "text-slate-800 dark:text-zinc-400"}`}>
                         <PiExam className='w-6 h-6'/>
                         <span>Online Exam</span>
                       </Link>

@@ -30,11 +30,8 @@ const ChatbotIndex = () => {
         // 3. Save to localStorage
       }
 
-      if (userRole === 1) {
-        router.replace(`/super-admin/chatbot/${sessionId}`);
-      } else {
-        router.replace(`/chatbot/${sessionId}`);
-      }
+      router.replace(`/chatbot/${sessionId}`);
+
     };
 
     initSession();

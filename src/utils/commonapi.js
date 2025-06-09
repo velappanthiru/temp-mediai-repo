@@ -27,6 +27,7 @@ export const imageToText = (data) => aiBaseAxios.post('/ai/ocr', data);
 export const storeQuestionsApi = (data) => appAxios.post('/api/generate-questions', data);
 export const activeExamsApi = () => appAxios.get('/api/exams');
 export const getExamDetailsById = (id) => appAxios.get(`/api/question/${id}`);
-
+export const getMenusBasedRoleId = (roleId) => appAxios.get(`/api/roles/${roleId}/permissions/`);
+export const accessMenusBasedRoleId = (roleId, menuIds) => appAxios.post(`/api/roles/${roleId}/permissions/`, menuIds);
 
 

@@ -65,11 +65,7 @@ export default function Home() {
         setButtonDisbale(false);
         if (role !== null && role !== undefined) {
           setCookies(token, role);
-        }
-        if (role !== 1) {
-          router.push('/chatbot');
-        } else {
-          router.push('/super-admin/chatbot');
+          router.push('/dashboard');
         }
       }
     } catch (error) {
