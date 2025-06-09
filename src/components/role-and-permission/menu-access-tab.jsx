@@ -1,100 +1,22 @@
 'use client';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
-  Tooltip, Input, Button, Checkbox, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Spinner
+  Card, CardHeader, CardBody, CardFooter, Chip, useDisclosure
 } from '@heroui/react';
-import { ChevronDownIcon, SearchIcon } from '../../utils/icon';
-import { useRouter } from 'next/navigation';
-import { getAllMenus, getAllRolesApi, updateMenuAccessApi } from '@/utils/commonapi';
+import { getAllMenus, getAllRolesApi, getMenusBasedRoleId, updateMenuAccessApi } from '@/utils/commonapi';
+import { useSelector } from 'react-redux';
+import { RxHamburgerMenu } from "react-icons/rx";
+import { LuPencilLine } from 'react-icons/lu';
+import MenuAccessEditPopup from './menu-access-edit-popup';
+
 
 const MenuAccessTab = () => {
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set([]));
-  const [menuColumns, setMenuColumns] = useState([]);
-  const [data, setData] = useState([]);
-
-  const headerColumns = React.useMemo(() => {
-    if (visibleColumns === "all") return menuColumns;
-    return menuColumns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-  }, [visibleColumns]);
-
-  const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return data;
-    return data.filter((menu) =>
-      menu?.menu?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery, data]);
-
-  const handleCheckboxChange = async (menuId, roleName, isChecked) => {
-    try {
-      setIsUpdating(true);
-      let hasAccess = isChecked?.target?.checked
-      const updateData = {
-        menuId,
-        roleName,
-        hasAccess
-      }
-      console.log("🚀 ~ handleCheckboxChange ~ updateData:", updateData)
-      // Call the API to update menu access
-      const response = await updateMenuAccessApi(updateData);
-
-      if (response) {
-        // Update local state to reflect the change
-        fetchAllMenus();
-
-        // Optional: Show success message
-        console.log('Menu access updated successfully');
-      } else {
-        console.error('Failed to update menu access:', response.message);
-        // Optional: Show error message to user
-      }
-    } catch (error) {
-      console.error('Error updating menu access:', error);
-      // Optional: Show error message to user
-      // You might want to revert the checkbox state here
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const renderCell = useCallback((item, columnKey) => {
-    switch (columnKey) {
-      case 'menu':
-        return (
-          <p className="text-sm whitespace-nowrap font-medium text-gray-700">
-            {item.menu}
-          </p>
-        );
-
-      default:
-        // For roles like super_admin, admin, etc.
-        const isChecked = item.permission.includes(Number(columnKey));
-        const isAdmin = String(columnKey) === "1" ? true : false;
-        return (
-         isAdmin ?  <Tooltip content="Super admin have default access for all menus" showArrow={true}>
-            <Checkbox
-              color='secondary'
-              isSelected={isChecked}
-              // isDisabled={isUpdating || isAdmin}
-              // onChange={(checked) => handleCheckboxChange(item.id, columnKey, checked)}
-            />
-          </Tooltip> : <Checkbox
-              color='secondary'
-              isSelected={isChecked}
-              isDisabled={isUpdating || isAdmin}
-              onChange={(checked) => handleCheckboxChange(item.id, columnKey, checked)}
-            />
-        );
-    }
-  }, [isUpdating]);
-
-  function capitalize(s) {
-    return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
-  }
+  const [roles, setRoles] = useState([]);
+  const [editData, setEditData] = useState(null);
+  const authSelector = useSelector(state => state?.auth);
+  const userRole = authSelector?.userInfo?.roleId;
+  const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure();
 
   const fetchAllRoles = async () => {
     try {
@@ -102,17 +24,13 @@ const MenuAccessTab = () => {
       const response = await getAllRolesApi();
       if (response) {
         const apiData = response?.data;
-        // Add default menu item and map role data with renamed keys
-        const rolesWithMenuItem = [
-          { name: "Menu Items", uid: "menu" }, // default menu item with role_id key
-          ...apiData.map(role => ({
-            name: role.name,          // renamed from 'name' or 'id' to 'role_id'
-            uid: role.id // e.g., "Super Admin" → "super_admin"
-          }))
-        ];
-        const columnsVisible = rolesWithMenuItem?.map((item) => item?.uid);
-        setVisibleColumns(columnsVisible);
-        setMenuColumns(rolesWithMenuItem || []);
+        const addWithPermission = await Promise.all(
+          apiData.map(async (role) => {
+            const permission = await fetchMenuPermission(role?.id);
+            return { ...role, permission };
+          })
+        );
+        setRoles(addWithPermission);
       }
     } catch (error) {
       console.log("🚀 ~ fetchAllRoles ~ error:", error);
@@ -121,99 +39,77 @@ const MenuAccessTab = () => {
     }
   };
 
-  const fetchAllMenus = async () => {
+  const fetchMenuPermission = async (roleId) => {
     try {
-      const response = await getAllMenus();
+      const response = await getMenusBasedRoleId(roleId);
       if (response) {
-        setData(response?.data)
+        const { data: { menus } } = response;
+        return menus;
       }
     } catch (error) {
-      console.log("🚀 ~ fetchAllMenus ~ error:", error)
+      console.log("🚀 ~ fetchMenuPermission ~ error:", error)
+      return [];
     }
   }
 
-  // Function to refresh menu data after updates
-  const refreshMenuData = async () => {
-    await fetchAllMenus();
-  };
-
   useEffect(() => {
     fetchAllRoles();
-    fetchAllMenus();
   }, []);
+
+  const openEditPopup = (data) => {
+    setEditData(data);
+    onOpen();
+  }
+
+  const closeEditPopup = () => {
+    setEditData(null);
+    onClose();
+    fetchAllRoles();
+  }
 
   return (
     <div className="book-list-section">
-      <div className="flex flex-col sm:flex-row justify-between gap-3 items-end my-4">
-        <Input
-          isClearable
-          value={searchQuery}
-          onValueChange={setSearchQuery}
-          placeholder="Search by menu..."
-          startContent={<SearchIcon />}
-          className="w-full sm:max-w-md"
-          classNames={{
-            label: 'text-sm font-medium text-[#68686F] dark:text-[#9F9FA5]',
-            inputWrapper:
-              'bg-white dark:bg-black border border-[#E7E7E9] dark:border-[#3E3E3E] rounded-xl px-4 py-2 h-10',
-            input: 'text-base font-medium text-[#343437] dark:text-white placeholder-[#9B9CA1]',
-          }}
-        />
+      <div className="flex flex-col gap-6">
+        {
+          roles && Array.isArray(roles) && roles?.length > 0 && roles?.map((item, index) => (
+            <Card key={`card_${index}`}>
+              <CardHeader className="gap-2 justify-between">
+                <div className='flex flex-col items-start gap-2'>
+                  <h1 className="m-0 text-black dark:text-white font-bold text-md">{item?.name}</h1>
+                  {/* <p className="m-0 text-slate-600 dark:text-slate-100 text-sm leading-relaxed">Full system access</p> */}
+                </div>
+                <div className="flex item-center gap-3">
+                  <LuPencilLine className='w-5 h-5 cursor-pointer text-black dark:text-white' onClick={() => openEditPopup(item)} />
+                </div>
+              </CardHeader>
+              <CardBody>
+                <div className="menu-header flex items-center gap-3 text-slate-700 dark:text-slate-100">
+                  <div className="flex items-center gap-2">
+                    <RxHamburgerMenu className='w-5 h-5'/>
+                    <h6 className="m-0 text-sm font-semibold text-slate-700 dark:text-slate-100">Menu Access</h6>
+                    <Chip color='primary' variant='bordered' radius='md'>
+                      {item?.permission?.length} menus
+                    </Chip>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                    {item?.permission?.map(menu => (
+                      <div key={`menu_${menu.id}`} className="flex items-center gap-2 text-xs bg-neutral-100 dark:bg-neutral-700 rounded-xl p-3">
+                          <span className="text-slate-700 dark:text-slate-100 font-medium truncate">{menu.title}</span>
+                      </div>
+                    ))}
+                </div>
+              </CardBody>
+              {/* <CardFooter>
 
-        <Dropdown>
-          <DropdownTrigger className="hidden sm:flex">
-            <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-              Roles
-            </Button>
-          </DropdownTrigger>
-          <DropdownMenu
-            disallowEmptySelection
-            aria-label="Table Columns"
-            closeOnSelect={false}
-            selectedKeys={visibleColumns}
-            selectionMode="multiple"
-            onSelectionChange={setVisibleColumns}
-          >
-            {menuColumns
-              .filter((column) => column.uid !== "menu") // 👈 filter out "Menu Items"
-              .map((column) => (
-                <DropdownItem key={column.uid} className="capitalize">
-                  {capitalize(column.name)}
-                </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </Dropdown>
+              </CardFooter> */}
+            </Card>
+          ))
+        }
       </div>
-
-      <Table aria-label="Roles table">
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column?.uid !== "menu" ? "center" : "start"}
-              className='font-semibold text-black dark:text-white'
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          items={filteredData}
-          isLoading={isLoading}
-          loadingContent={
-            <Spinner color='secondary'/>
-          }
-          emptyContent={<span className="text-center text-sm text-gray-500">No data found.</span>}
-        >
-          {(item) => (
-            <TableRow key={item.id}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      {
+        isOpen && <MenuAccessEditPopup isOpen={isOpen} onOpenChange={onOpenChange} onClose={onClose} data={editData} afterSubmit={closeEditPopup} />
+      }
     </div>
   );
 };

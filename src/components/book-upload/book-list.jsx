@@ -99,7 +99,7 @@ const BookList = () => {
     try {
       const response = await bookTopicsandTitleApi();
       if (response?.data) {
-        setData(response?.data);
+        setData([]);
       }
     } catch (error) {
       console.log("🚀 ~ fetchBookTopicsandTitle ~ error:", error);

@@ -1,6 +1,6 @@
 "use client"
 
-import MainLayout from "../../../layout-component/main-layout";
+import MainLayout from "../../layout-component/main-layout";
 
 export default function HomePage() {
 

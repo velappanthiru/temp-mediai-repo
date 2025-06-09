@@ -2,12 +2,13 @@ import React from 'react';
 import {Breadcrumbs, BreadcrumbItem} from "@heroui/react";
 
 const BreadcrumbsComponent = ({ arr }) => {
+
   if (!arr || !Array.isArray(arr) || arr.length === 0) {
     console.warn("The 'arr' prop is invalid or empty.");
     return null;
   }
 
-  const arrWithoutFirst = arr.slice(1);
+
   return (
     <Breadcrumbs
       itemsAfterCollapse={2}
@@ -23,15 +24,16 @@ const BreadcrumbsComponent = ({ arr }) => {
       underline="always"
       variant="solid"
     >
-      {arrWithoutFirst.map((segment, index) => {
-        const pathUpToSegment = '/super-admin/' + arrWithoutFirst.slice(0, index + 1).join('/');
+      {arr.map((segment, index) => {
+        const pathUpToSegment = arr.slice(0, index + 1).join('/');
+        console.log("🚀 ~ {arr.map ~ pathUpToSegment:", pathUpToSegment)
         // Remove hyphens and capitalize words
         const displayText = segment
         .split('-') // Split words by hyphen
         .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
         .join(' '); // Join the words back with a space
         return (
-          index + 1 < arrWithoutFirst.length ? (
+          index + 1 < arr.length ? (
             <BreadcrumbItem key={pathUpToSegment} href={pathUpToSegment}>
               {displayText}
             </BreadcrumbItem>

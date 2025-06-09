@@ -1,6 +1,5 @@
 import axios from "axios";
 import { getCookies, removeCookies } from "./cookies";
-import { toast } from "react-hot-toast";
 
 
 const appAxios = axios.create({

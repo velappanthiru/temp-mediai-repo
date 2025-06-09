@@ -118,7 +118,7 @@ const UserList = () => {
       case "emailid":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">{item?.emailid}</p>
+            <p className="text-bold text-small whitespace-nowrap">{item?.emailid}</p>
           </div>
         );
       case "createdAt":
@@ -270,7 +270,7 @@ const UserList = () => {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" size="sm" className="bg-black dark:bg-gray-600" endContent={<PlusIcon />} onPress={() => router.push('/super-admin/user/add')}>
+            <Button color="primary" size="sm" className="bg-black dark:bg-gray-600" endContent={<PlusIcon />} onPress={() => router.push('/user/add')}>
               Add New
             </Button>
           </div>
