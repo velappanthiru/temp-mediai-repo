@@ -26,7 +26,7 @@ const BreadcrumbsComponent = ({ arr }) => {
     >
       {arr.map((segment, index) => {
         const pathUpToSegment = arr.slice(0, index + 1).join('/');
-        console.log("🚀 ~ {arr.map ~ pathUpToSegment:", pathUpToSegment)
+
         // Remove hyphens and capitalize words
         const displayText = segment
         .split('-') // Split words by hyphen
@@ -34,7 +34,7 @@ const BreadcrumbsComponent = ({ arr }) => {
         .join(' '); // Join the words back with a space
         return (
           index + 1 < arr.length ? (
-            <BreadcrumbItem key={pathUpToSegment} href={pathUpToSegment}>
+            <BreadcrumbItem key={pathUpToSegment} href={`/${pathUpToSegment}`}>
               {displayText}
             </BreadcrumbItem>
           ) : (

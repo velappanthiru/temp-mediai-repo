@@ -5,7 +5,8 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { accessMenusBasedRoleId, getAllMenus } from '@/utils/commonapi';
+import { accessMenusBasedRoleId, createRoleApi, getAllMenus } from '@/utils/commonapi';
+import { toast } from 'react-hot-toast';
 
 const roleSchema = yup.object().shape({
   name: yup
@@ -19,7 +20,7 @@ const roleSchema = yup.object().shape({
     .min(1, 'At least one menu permission is required')
 });
 
-const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit}) => {
+const CreateRoleWithMenu = ({isOpen, onOpenChange, onClose}) => {
   const [menus, setMenus] = useState([]);
 
   // React Hook Form setup
@@ -48,44 +49,49 @@ const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit})
     }
   }
 
-  // Handle form submission
   const handleFormSubmit = async (formData) => {
+    console.log("🚀 ~ handleFormSubmit ~ formData:", formData);
     try {
-      const menuIds = formData?.permission.map(Number);
-      const objData = {
-        menuIds
+      const roleData = {
+        name: formData?.name,
+      };
+
+      const roleResponse = await createRoleApi(roleData);
+
+      if (roleResponse?.data?.data?.id) {
+        const roleId = roleResponse.data.data.id;
+        const menuIds = (formData?.permission || []).map(Number);
+
+        const accessData = {
+          menuIds,
+        };
+
+        const accessResponse = await accessMenusBasedRoleId(roleId, accessData);
+
+        if (accessResponse) {
+          console.log("🚀 ~ handleFormSubmit ~ accessResponse:", accessResponse);
+          onClose();
+        }
+      } else {
+        throw new Error("Failed to create role.");
       }
-      const response = await accessMenusBasedRoleId(data?.id, objData);
-      if (response) {
-        console.log("🚀 ~ handleFormSubmit ~ response:", response);
-        afterSubmit();
-      }
-      // reset(); // Reset form after successful submission
-      // onClose(); // Close modal
+
     } catch (error) {
-      console.error("Form submission error:", error);
-      // Handle error (you might want to show a toast notification)
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: 'top-right',
+      });
+
+      console.error("🚀 ~ handleFormSubmit ~ error:", error);
     }
   };
 
-  // Reset form when modal opens/closes or data changes
-  useEffect(() => {
-    if (isOpen && data) {
-      // Extract IDs from permission objects if they exist
-      const permissionIds = data?.permission ?
-        data.permission.map(perm => perm.id ? perm.id.toString() : perm) : [];
 
-      reset({
-        name: data?.name || "",
-        permission: permissionIds,
-      });
-    } else if (!isOpen) {
-      reset({
-        name: "",
-        permission: [],
-      });
-    }
-  }, [isOpen, data, reset]);
 
   useEffect(() => {
     fetchMenus();
@@ -103,7 +109,7 @@ const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit})
           {(onClose) => (
             <form onSubmit={handleSubmit(handleFormSubmit)}>
               <ModalHeader className="flex flex-col gap-1">
-                {data ? 'Edit Role' : 'Add Role'}
+              Add Role
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-1.5">
@@ -114,7 +120,6 @@ const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit})
                       <Input
                         {...field}
                         type="text"
-                        disabled={data?.id === 1}
                         label="Role Name"
                         placeholder="Enter role name"
                         labelPlacement='outside'
@@ -137,7 +142,6 @@ const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit})
                     control={control}
                     render={({ field: { onChange, value } }) => (
                       <Select
-                        isDisabled={data?.id === 1}
                         label="Menu Access"
                         labelPlacement='outside'
                         placeholder="Select Menus"
@@ -145,7 +149,6 @@ const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit})
                         selectedKeys={new Set(value || [])}
                         onSelectionChange={(keys) => {
                           const selectedArray = Array.from(keys);
-                          console.log("🚀 ~ MenuAccessEditPopup ~ selectedArray:", selectedArray)
                           onChange(selectedArray);
                         }}
                         isInvalid={!!errors.permission}
@@ -182,7 +185,7 @@ const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit})
                   isLoading={isSubmitting}
                   className="bg-gradient-to-r from-purple-700 to-purple-500 text-white"
                 >
-                  {isSubmitting ? (data ? 'Updating...' : 'Creating...') : (data ? 'Update Role' : 'Create Role')}
+                  {isSubmitting ? "Creating..." : "Create Role"}
                 </Button>
               </ModalFooter>
             </form>
@@ -193,4 +196,4 @@ const MenuAccessEditPopup = ({isOpen, onOpenChange, onClose, data, afterSubmit})
   )
 }
 
-export default MenuAccessEditPopup;
+export default CreateRoleWithMenu;
