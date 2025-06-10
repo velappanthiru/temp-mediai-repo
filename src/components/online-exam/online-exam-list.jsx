@@ -118,7 +118,7 @@ const OnlineExamList = () => {
             }}
           />
           <div className="flex gap-3">
-            <Button type="button" color="primary" className='bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)]' endContent={<PlusIcon />} onPress={() => router.push('/online-exam/add')}>
+            <Button type="button" color="primary" className='bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)]' endContent={<PlusIcon />} onPress={() => router.push('/questions/add')}>
               Add New
             </Button>
           </div>
