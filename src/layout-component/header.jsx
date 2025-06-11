@@ -49,6 +49,7 @@ const Header = ({
   const userRole = selector?.userInfo?.roleId;
   const dispatch = useDispatch();
   const [menuItems, setMenuItems] = useState([]);
+  const router = useRouter();
 
   const toggleFullScreen = () => {
     if (!isFullScreen) {
@@ -203,6 +204,9 @@ const Header = ({
                         <p className="font-bold">Signed in as</p>
                         <p className="font-bold">{selector?.userInfo?.emailid}</p>
                       </DropdownItem>
+                      <DropdownItem key="settings" onPress={()=>router.push('settings')}>
+                        Settings
+                      </DropdownItem>
                       <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                         Log Out
                       </DropdownItem>
@@ -223,6 +227,9 @@ const Header = ({
                       <DropdownItem key="profile" className="h-14 gap-2">
                         <p className="font-bold">Signed in as</p>
                         <p className="font-bold">{selector?.userInfo?.emailid}</p>
+                      </DropdownItem>
+                      <DropdownItem key="settings" onPress={()=>router.push('settings')}>
+                        Settings
                       </DropdownItem>
                       <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                         Log Out

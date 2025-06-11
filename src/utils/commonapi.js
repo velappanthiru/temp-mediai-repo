@@ -5,6 +5,7 @@ import appAxios from "./axios-utils";
 export const userMe = () => appAxios.get('/api/userme');
 export const userLoginApi = (data) => appAxios.post('/api/login/', data);
 export const userRegisterApi = (data) => appAxios.post('/api/register/', data);
+export const changePassword = (data) => appAxios.post('/api/change-password/', data);
 export const bookUploadApi = (data) => appAxios.post('/api/books/', data);
 export const bookEditApi = (id, data) => appAxios.put(`/api/books/${id}`, data);
 export const bookGetApi = () => appAxios.get('/ai/books/');

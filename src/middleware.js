@@ -67,6 +67,7 @@ export async function middleware(request) {
       }
     }
 
+    allowed.add('/settings');
     // Ensure Set isn't empty even if data.menus had no entries
     if (allowed.size === 0) {
       allowed.add('/dashboard');
