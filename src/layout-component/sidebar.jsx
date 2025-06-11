@@ -14,6 +14,7 @@ import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { Image, Skeleton } from '@heroui/react';
 import logoImage from "../assets/images/logo.jpeg";
 import { getMenusBasedRoleId } from '@/utils/commonapi';
+import { IoSettingsOutline } from "react-icons/io5";
 
 const iconMap = {
   IoChatboxEllipsesOutline: IoChatboxEllipsesOutline,
@@ -68,7 +69,7 @@ const Sidebar = ({ hideMenu }) => {
     <>
       <aside
         id="default-sidebar"
-        className={`hidden lg:flex flex-col lg:fixed top-0 bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)] dark:bg-[#212529] left-0 z-40 ${hideMenu ? 'w-20' : 'w-64'} h-screen transition-transform transition-width -translate-x-full sm:translate-x-0`}
+        className={`hidden lg:flex flex-col lg:fixed top-0 bg-[linear-gradient(90deg,#7E41A2_0%,#9246B2_100%)] dark:bg-[#212529] left-0 z-40 ${hideMenu ? 'w-20' : 'w-64'} h-dvh transition-transform transition-width -translate-x-full sm:translate-x-0`}
         aria-label="Sidebar"
       >
         <div className="logo-wrapper py-4 min-h-20 flex items-center justify-center">
@@ -80,8 +81,8 @@ const Sidebar = ({ hideMenu }) => {
             />
           </Link>
         </div>
-        <div className="h-full overflow-y-auto flex flex-col justify-between">
-          <ul className='flex flex-col'>
+        <div className="h-[calc(100dvh-80px)] flex flex-col justify-between">
+          <ul className='flex flex-col h-[calc(100dvh-112px)] overflow-y-auto'>
             {
               menuItems && Array.isArray(menuItems) && menuItems.length > 0 ?
               menuItems.map((item, index) => {
@@ -119,6 +120,13 @@ const Sidebar = ({ hideMenu }) => {
           </ul>
           <div className='flex flex-col gap-4'>
             <ul className='flex flex-col gap-4'>
+              <li>
+                <div onClick={()=>router.push('/settings')} className={`cursor-pointer text-base font-normal flex items-center gap-3 px-4 py-3 ${pathname === '/settings' ? "text-white" : "text-slate-300 dark:text-zinc-400"}`}>
+                  <IoSettingsOutline className='w-6 h-6'/>
+
+                  <span className={`${hideMenu ? 'hidden': ''}`}>Settings</span>
+                </div>
+              </li>
               <li>
                 <div onClick={handleLogout} className={`cursor-pointer text-base font-normal flex items-center gap-3 px-4 py-3 ${pathname === '/logout' ? "text-white" : "text-slate-300 dark:text-zinc-400"}`}>
                   <svg
