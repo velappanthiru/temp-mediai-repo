@@ -77,8 +77,8 @@ const OnlineExamAdd = () => {
       const response = await bookTopicsandTitleApi();
       if (response?.data) {
         const options = response.data.map((book) => ({
-          value: book.book_id,
-          label: book.title,
+          value: book,
+          label: book,
         }));
         setTopics(options);
       }
