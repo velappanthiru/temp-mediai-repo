@@ -45,7 +45,6 @@ export default function SettingsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [serverMessage, setServerMessage] = useState(null);
   const [passwordStrength, setPasswordStrength] = useState("");
 
   const {
@@ -65,7 +64,6 @@ export default function SettingsPage() {
   }, [newPassword]);
 
   const onSubmit = async (data) => {
-    setServerMessage(null);
     try {
       const formData = {
         "oldPassword": data?.currentPassword,
@@ -80,8 +78,17 @@ export default function SettingsPage() {
         });
         reset();
       }
-    } catch (err) {
-      setServerMessage("Something went wrong.");
+    } catch (error) {
+      console.log("🚀 ~ onSubmit ~ error:", error)
+      const errorMessage =
+      error?.response?.data?.message||
+      error?.message ||
+      "Something went wrong. Please try again.";
+
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: 'top-right',
+      });
     }
   };
 
@@ -165,10 +172,6 @@ export default function SettingsPage() {
                 <Button type="submit" color="secondary" isLoading={isSubmitting}>
                   Change Password
                 </Button>
-
-                {serverMessage && (
-                  <p className="text-sm text-green-600 dark:text-green-400 mt-2">{serverMessage}</p>
-                )}
               </form>
             </CardBody>
           </Card>
