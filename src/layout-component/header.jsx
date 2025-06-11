@@ -204,7 +204,7 @@ const Header = ({
                         <p className="font-bold">Signed in as</p>
                         <p className="font-bold">{selector?.userInfo?.emailid}</p>
                       </DropdownItem>
-                      <DropdownItem key="settings" onPress={()=>router.push('settings')}>
+                      <DropdownItem key="settings" onPress={()=>router.push('/settings')}>
                         Settings
                       </DropdownItem>
                       <DropdownItem key="logout" color="danger" onPress={handleLogout}>
@@ -228,7 +228,7 @@ const Header = ({
                         <p className="font-bold">Signed in as</p>
                         <p className="font-bold">{selector?.userInfo?.emailid}</p>
                       </DropdownItem>
-                      <DropdownItem key="settings" onPress={()=>router.push('settings')}>
+                      <DropdownItem key="settings" onPress={()=>router.push('/settings')}>
                         Settings
                       </DropdownItem>
                       <DropdownItem key="logout" color="danger" onPress={handleLogout}>

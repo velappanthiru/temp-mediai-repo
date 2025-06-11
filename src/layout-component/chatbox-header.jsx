@@ -173,6 +173,9 @@ const ChatbotHeader = ({
                         <p className="font-bold">Signed in as</p>
                         <p className="font-bold">{selector?.userInfo?.emailid}</p>
                       </DropdownItem>
+                      <DropdownItem key="settings" onPress={()=>router.push('/settings')}>
+                        Settings
+                      </DropdownItem>
                       <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                         Log Out
                       </DropdownItem>
@@ -193,6 +196,9 @@ const ChatbotHeader = ({
                       <DropdownItem key="profile" className="h-14 gap-2">
                         <p className="font-bold">Signed in as</p>
                         <p className="font-bold">{selector?.userInfo?.emailid}</p>
+                      </DropdownItem>
+                      <DropdownItem key="settings" onPress={()=>router.push('/settings')}>
+                        Settings
                       </DropdownItem>
                       <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                         Log Out
