@@ -365,7 +365,7 @@ const ChatbotComponent = ({ chatData }) => {
                       </div>
                     )}
                     {
-                      !chat?.content?.media_ai && !chat?.content?.common_ai && !chat?.content?.medi_ai && chat?.content?.medical_report?.length === 0 && <div
+                      !chat?.content?.media_ai && !chat?.content?.common_ai && !chat?.content?.medi_ai && !chat?.content?.medical_report && <div
                         className={`max-w-full rounded-2xl px-4 py-3 ${ chat?.role === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                           : 'bg-gradient-to-br from-purple-50 to-purple-100 dark:bg-gradient-to-br dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-700 shadow-md'
                         }`}

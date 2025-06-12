@@ -44,7 +44,7 @@ const CharboxSidebar = ({ hideMenu, newChatOnclick = () => { }, disabledNew = fa
     try {
       const { data } = await historyApi();
 
-      const historyArray = data || [];
+      const historyArray = data?.sessions || [];
 
       // Filter and sort each category in descending order (newest first)
       const todayData = sortByDateDesc(
