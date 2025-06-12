@@ -29,3 +29,23 @@ body {
     text-wrap: balance;
   }
 }
+
+
+/* styles/globals.css */
+.slim-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(100, 100, 100, 0.5) transparent; /* Firefox */
+
+  /* WebKit-based browsers */
+}
+.slim-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.slim-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.5);
+  border-radius: 4px;
+}
+.slim-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}

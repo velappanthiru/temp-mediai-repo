@@ -81,8 +81,8 @@ const Sidebar = ({ hideMenu }) => {
             />
           </Link>
         </div>
-        <div className="h-[calc(100dvh-80px)] flex flex-col justify-between">
-          <ul className='flex flex-col h-[calc(100dvh-112px)] overflow-y-auto'>
+        <div className="h-[calc(100dvh-80px)] slim-scrollbar overflow-y-auto flex flex-col justify-between">
+          <ul className='flex flex-col'>
             {
               menuItems && Array.isArray(menuItems) && menuItems.length > 0 ?
               menuItems.map((item, index) => {
