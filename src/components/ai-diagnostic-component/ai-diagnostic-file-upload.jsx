@@ -253,10 +253,10 @@ export default function AiFiagnosticFileUpload() {
                       </Button>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-2">
                       {previews.map((preview, idx) => (
                         <div key={idx} className="relative group">
-                          <div className="aspect-square rounded-md bg-gray-100 dark:bg-gray-800 relative overflow-hidden">
+                          <div className="aspect-square rounded-md bg-gray-100 dark:bg-gray-800 relative">
                             <Image
                               src={preview.url}
                               alt={preview.name}
