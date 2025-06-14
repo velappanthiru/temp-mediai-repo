@@ -15,6 +15,7 @@ import { Image, Skeleton } from '@heroui/react';
 import logoImage from "../assets/images/logo.jpeg";
 import { getMenusBasedRoleId } from '@/utils/commonapi';
 import { IoSettingsOutline } from "react-icons/io5";
+import { BsCloudUpload } from "react-icons/bs";
 
 const iconMap = {
   IoChatboxEllipsesOutline: IoChatboxEllipsesOutline,
@@ -25,7 +26,8 @@ const iconMap = {
   MdOutlineDashboard: MdOutlineDashboard,
   MdMedicalServices: MdMedicalServices,
   MdSecurity: MdSecurity,
-  PiUsers: PiUsers
+  PiUsers: PiUsers,
+  BsCloudUpload: BsCloudUpload
 };
 
 const Sidebar = ({ hideMenu }) => {
@@ -106,7 +108,7 @@ const Sidebar = ({ hideMenu }) => {
               }) : <>
                   {
                     Array.from({ length: 6 }).map((_, index) => (
-                      <div className="flex items-center gap-3 p-4">
+                      <div key={index} className="flex items-center gap-3 p-4">
                         <Skeleton className="flex rounded-md w-6 h-6" />
                         {
                           !hideMenu && <Skeleton className="flex rounded-md flex-1 h-6" />

@@ -302,7 +302,7 @@ const Header = ({
                 }) : <>
                   {
                     Array.from({ length: 6 }).map((_, index) => (
-                      <div className="flex items-center gap-3 p-4">
+                      <div key={index} className="flex items-center gap-3 p-4">
                         <Skeleton className="flex rounded-md w-6 h-6" />
                         <Skeleton className="flex rounded-md flex-1 h-6" />
                       </div>
