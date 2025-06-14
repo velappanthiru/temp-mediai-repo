@@ -179,7 +179,7 @@ export default function AiFiagnosticFileUpload() {
       <div className='mb-6'>
         <BreadcrumbsComponent arr={pathSegments} />
 
-        <div className="mt-6 max-w-5xl mx-auto">
+        <div className="mt-6 max-w-7xl mx-auto">
           {/* Compact Header */}
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
@@ -346,26 +346,27 @@ export default function AiFiagnosticFileUpload() {
                       </svg>
                       Analysis Results
                     </h3>
-
-                    {analysisData?.interpretation && (
-                      <div className="mb-4">
-                        <h4 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Summary:</h4>
-                        <p className="text-sm text-gray-800 dark:text-gray-200 bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg">
-                          {analysisData.interpretation}
-                        </p>
-                      </div>
-                    )}
-
-                    {analysisData?.extracted_texts && (
-                      <div>
-                        <h4 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Detailed Report:</h4>
-                        <div className="prose prose-sm max-w-none text-gray-800 dark:text-gray-200 bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg">
-                          <ReactMarkdown>
-                            {formatMedicalReport(analysisData.extracted_texts)}
-                          </ReactMarkdown>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {analysisData?.interpretation && (
+                        <div className="mb-4">
+                          <h4 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Summary:</h4>
+                          <p className="text-sm text-gray-800 dark:text-gray-200 bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg">
+                            {analysisData.interpretation}
+                          </p>
                         </div>
-                      </div>
-                    )}
+                      )}
+
+                      {analysisData?.extracted_texts && (
+                        <div>
+                          <h4 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Detailed Report:</h4>
+                          <div className="prose prose-sm max-w-none text-gray-800 dark:text-gray-200 bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg">
+                            <ReactMarkdown>
+                              {formatMedicalReport(analysisData.extracted_texts)}
+                            </ReactMarkdown>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </CardBody>
                 </Card>
               ) : (
