@@ -46,21 +46,21 @@ const BookList = () => {
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case 'title':
-        return <p className="text-sm font-medium capitalize min-w-[20rem] max-w-[20rem]">{item?.title}</p>;
+      case 'id':
+        return <p className="text-sm font-medium capitalize min-w-[20rem] max-w-[20rem]">{item?.id}</p>;
       case 'collection_name':
-        return <p className="text-sm font-medium capitalize min-w-[10rem]">{item?.collection_name}</p>;
-      case 'pages':
-        return <p className="text-sm font-medium capitalize min-w-[10rem]">{item?.pages}</p>;
+        return <p className="text-sm font-medium capitalize min-w-[10rem]">{item?.name}</p>;
+      // case 'pages':
+      //   return <p className="text-sm font-medium capitalize min-w-[10rem]">{item?.pages}</p>;
 
-      case "upload_date":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize whitespace-nowrap">
-              {dayjs(item?.upload_date).format("DD MMM YYYY")}
-            </p>
-          </div>
-        );
+      // case "upload_date":
+      //   return (
+      //     <div className="flex flex-col">
+      //       <p className="text-bold text-small capitalize whitespace-nowrap">
+      //         {dayjs(item?.upload_date).format("DD MMM YYYY")}
+      //       </p>
+      //     </div>
+      //   );
 
       // case 'actions':
       //   return (
@@ -99,7 +99,15 @@ const BookList = () => {
     try {
       const response = await bookTopicsandTitleApi();
       if (response?.data) {
-        setData([]);
+        const updateData = response?.data?.map((item, index) => ({
+          id: index,
+          name: item
+            ?.replace(/[-_+]+/g, ' ')          // Replace -, _, + with space
+            ?.replace(/\s+/g, ' ')             // Collapse multiple spaces
+            ?.trim()                           // Trim leading/trailing space
+        }));
+
+        setData(updateData);
       }
     } catch (error) {
       console.log("🚀 ~ fetchBookTopicsandTitle ~ error:", error);
@@ -154,7 +162,7 @@ const BookList = () => {
           emptyContent={<span className="text-center text-sm text-gray-500">No matching books found.</span>}
         >
           {(item) => (
-            <TableRow key={item.book_id}>
+            <TableRow key={item.id}>
               {(columnKey) => (
                 <TableCell>{renderCell(item, columnKey)}</TableCell>
               )}
