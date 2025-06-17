@@ -15,6 +15,11 @@ export const bookSchema = yup.object().shape({
 export const questionSchema = yup.object().shape({
   exam_name: yup.string().required("Exam name is required"),
   book_name: yup.string().required("Book name is required"),
+  chapter_name: yup
+  .array()
+  .of(yup.string())
+  .min(1, "At least one chapter must be selected")
+  .required("Chapter name is required"),
   date: yup.string().required("Exam date is required"),
   duration: yup.string().required("Duration is required"),
   total_questions: yup

@@ -21,9 +21,10 @@ export const fileUploadApi = (data) => aiBaseAxios.post('/ai/books/upload', data
 export const toggleApi = (data) => aiBaseAxios.post('/ai/toggle_mode', data);
 export const newChatAPi = () => aiBaseAxios.post('/ai/new_session');
 export const historyApi = () => aiBaseAxios.get('/ai/sessions');
-export const AiDiagnosticApi = (data) => aiBaseAxios.post('/ai/interpret_images',data);
+export const AiDiagnosticApi = (data) => aiBaseAxios.post('/ai/interpret_images', data);
 export const sessionIdApi = (sessionId) => aiBaseAxios.get(`/ai/session/${sessionId}`);
 export const bookTopicsandTitleApi = () => aiBaseAxios.get('/ai/books');
+export const bookChapterApi = (data) => aiBaseAxios.get(`/ai/book/${data}/chapters`);
 export const generateQuestionsApi = (data) => aiBaseAxios.post('/ai/generate-questions', data);
 export const imageToText = (data) => aiBaseAxios.post('/ai/ocr', data);
 export const storeQuestionsApi = (data) => appAxios.post('/api/generate-questions', data);

@@ -8,7 +8,7 @@ import { Button, Radio, RadioGroup, Modal, ModalContent, ModalHeader, ModalBody,
 import { questionSchema } from '@/utils/yubSchema/validate';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { bookTopicsandTitleApi, generateQuestionsApi } from '@/utils/commonapi';
+import { bookChapterApi, bookTopicsandTitleApi, generateQuestionsApi } from '@/utils/commonapi';
 import { toast } from 'react-hot-toast';
 import ExamPreview from './online-exam';
 import Select from 'react-select';
@@ -25,8 +25,10 @@ const OnlineExamAdd = () => {
   const [generatedExam, setGeneratedExam] = useState(null);
   const [topics, setTopics] = useState([]);
   const [topicsLoading, setTopicsLoading] = useState(false);
+  const [chapterList, setChapterList] = useState([]);
+  const [isChapterLoading, setIsChapterLoading] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting, isSubmitSuccessful }, control } = useForm({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting, isSubmitSuccessful }, control } = useForm({
     resolver: yupResolver(questionSchema),
     mode: "onSubmit",
     reValidateMode: "onBlur",
@@ -35,9 +37,16 @@ const OnlineExamAdd = () => {
     }
   })
 
+  const selectedBook = watch('book_name');
+
+
   const handleSubmitLogin = async (data) => {
     try {
-      const response = await generateQuestionsApi(data);
+      const apiData = {
+        ...data,
+        topic_or_book_name: data?.book_name
+      }
+      const response = await generateQuestionsApi(apiData);
       if (response) {
         setGeneratedExam(response.data || []);
         reset();
@@ -78,7 +87,9 @@ const OnlineExamAdd = () => {
       if (response?.data) {
         const options = response.data.map((book) => ({
           value: book,
-          label: book,
+          label: book?.replace(/[-_+]+/g, ' ')          // Replace -, _, + with space
+          ?.replace(/\s+/g, ' ')             // Collapse multiple spaces
+          ?.trim(),
         }));
         setTopics(options);
       }
@@ -90,9 +101,38 @@ const OnlineExamAdd = () => {
   };
 
 
+  const chatperApi = async () => {
+    setIsChapterLoading(true);
+    try {
+      const response = await bookChapterApi("2016-ESMO-Handbook-Oncological-Emergencies");
+      if (response) {
+        const options = response.data.map((chapter) => ({
+          value: chapter,
+          label: chapter?.replace(/[-_+]+/g, ' ')          // Replace -, _, + with space
+          ?.replace(/\s+/g, ' ')             // Collapse multiple spaces
+          ?.trim(),
+        }));
+        setChapterList(options);
+      }
+    } catch (error) {
+      console.log("🚀 ~ chatperApi ~ error:", error)
+    } finally {
+      setIsChapterLoading(false);
+    }
+  }
+
   useEffect(() => {
     fetchBookTopicsandTitle();
   }, [])
+
+  useEffect(() => {
+    if (selectedBook) {
+      chatperApi();
+      setValue('chapter_name', '');
+    } else {
+      setChapterList([]);
+    }
+  }, [selectedBook]);
 
   const customTheme = (theme) => ({
     ...theme,
@@ -130,9 +170,32 @@ const OnlineExamAdd = () => {
     }),
   };
 
-  const handleSelectChange = (e) => {
-    setValue("book_name", e?.label);
-  }
+  const multiSelectStyles = {
+    control: (base) => ({
+        ...base,
+        borderColor: '#E7E7E9',
+        boxShadow: 'none',
+        borderRadius: 12,
+        minHeight: "3rem",
+        '&:hover': {
+            borderColor: '#E7E7E9',
+        },
+    }),
+    menu: (base) => ({
+        ...base,
+        zIndex: 9999,
+        borderColor: '#E7E7E9',
+        borderRadius: 12,
+        paddingTop: 8,
+        paddingBottom: 8,
+    }),
+    option: (base, state) => ({
+        ...base,
+        backgroundColor: state.isSelected ? '#E7E7E9' : state.isFocused ? '#E7E7E9' : 'transparent',
+        color: state.isSelected ? 'black' : 'black',
+        cursor: 'pointer',
+    }),
+  };
 
   return (
     <>
@@ -162,9 +225,8 @@ const OnlineExamAdd = () => {
               errors?.exam_name && <small className='text-red-500 text-sm'>{errors?.exam_name?.message}</small>
             }
           </div>
-
           <div className="flex flex-col gap-1.5">
-            <label className="block text-base font-medium text-black dark:text-[#9F9FA5]">Topic or Books Name ( Google Search option)</label>
+            <label className="block text-base font-medium text-black dark:text-[#9F9FA5]">Books Name</label>
             <Controller
               name="book_name"
               control={control}
@@ -187,7 +249,40 @@ const OnlineExamAdd = () => {
             />
             {errors?.book_name && <small className='text-red-500 text-sm'>{errors?.book_name?.message}</small>}
           </div>
-
+          {
+            selectedBook && <div className="flex flex-col gap-1.5">
+              <label className="block text-base font-medium text-black dark:text-[#9F9FA5]">Chapter Name</label>
+              <Controller
+                name="chapter_name"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <Select
+                    id="state-select-timeDurationOptions"
+                    className="basic-single"
+                    isClearable
+                    isSearchable
+                    isLoading={isChapterLoading}
+                    options={chapterList}
+                    theme={customTheme}
+                    isMulti
+                    styles={multiSelectStyles}
+                    value={
+                      Array.isArray(value)
+                        ? chapterList.filter(option => value.includes(option.value))
+                        : []
+                    }
+                    onChange={(selectedOptions) => {
+                      // Handle array of selected options
+                      onChange(
+                        selectedOptions ? selectedOptions.map(opt => opt.value) : []
+                      );
+                    }}
+                  />
+                )}
+              />
+              {errors?.chapter_name && <small className='text-red-500 text-sm'>{errors?.chapter_name?.message}</small>}
+            </div>
+          }
           <div className="flex flex-col gap-1.5">
             <Input
               type="date"
