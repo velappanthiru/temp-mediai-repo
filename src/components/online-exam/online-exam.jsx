@@ -85,55 +85,45 @@ const ExamPreview = ({ examData, isOpen, onClose, onSave }) => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
 
-    // Page dimensions and margins
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 15;
     const maxWidth = pageWidth - (margin * 2);
 
-    // Helper function to add wrapped text
     const addWrappedText = (text, x, y, maxWidth, fontSize = 12, fontStyle = 'normal') => {
       doc.setFontSize(fontSize);
       doc.setFont(undefined, fontStyle);
-
       const lines = doc.splitTextToSize(text, maxWidth);
       lines.forEach((line, index) => {
         doc.text(line, x, y + (index * 6));
       });
-
       return y + (lines.length * 6);
     };
 
-    // Helper function to check if we need a new page
     const checkPageBreak = (currentY, requiredSpace = 30) => {
       if (currentY + requiredSpace > pageHeight - margin) {
         doc.addPage();
-        return margin + 10; // Reset Y position with top margin
+        return margin + 10;
       }
       return currentY;
     };
 
     let currentY = margin;
 
-    // Header Section with background
-    const headerHeight = 50;
+    // Header background
     doc.setFillColor(240, 240, 240);
-    doc.rect(margin, currentY, maxWidth, headerHeight, 'F');
-
+    doc.rect(margin, currentY, maxWidth, 50, 'F');
     currentY += 8;
 
-    // Exam title
+    // Title
     doc.setFontSize(18);
     doc.setFont(undefined, 'bold');
     const examTitle = `EXAM: ${examData.exam_name || 'Untitled Exam'}`;
     currentY = addWrappedText(examTitle, margin + 5, currentY, maxWidth - 10, 18, 'bold');
-
     currentY += 5;
 
-    // Header information - all in vertical layout for reliability
+    // Header Info
     doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
-
     const headerInfo = [
       `Book: ${examData.book_name || 'N/A'}`,
       `Date: ${examData.date || 'N/A'}`,
@@ -141,153 +131,89 @@ const ExamPreview = ({ examData, isOpen, onClose, onSave }) => {
       `Total Questions: ${examData.total_questions || examData.questions?.length || 0}`,
       `Total Marks: ${examData.total_marks || (examData.questions?.length * (examData.marks_per_question || 1)) || 'N/A'}`
     ];
-
     headerInfo.forEach((info) => {
       currentY = addWrappedText(info, margin + 5, currentY, maxWidth - 10, 11, 'normal');
-      currentY += 1; // Small gap between lines
+      currentY += 1;
     });
 
     currentY += 10;
 
-    // Questions Section
-    if (examData.questions && examData.questions.length > 0) {
+    if (examData.questions?.length) {
       examData.questions.forEach((q, index) => {
-        // Check if we need a new page before starting a question
         currentY = checkPageBreak(currentY, 50);
 
-        // Question number and text
         const questionNumber = `Q${index + 1}.`;
         const questionText = q.question || 'Question text not available';
 
-        // Add question number
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
         doc.text(questionNumber, margin, currentY);
 
-        // Add question text with proper wrapping
-        currentY = addWrappedText(
-          questionText,
-          margin + 15,
-          currentY,
-          maxWidth - 15,
-          12,
-          'bold'
-        );
-
+        currentY = addWrappedText(questionText, margin + 15, currentY, maxWidth - 15, 12, 'bold');
         currentY += 5;
 
-        // Add options
-        if (q.options && Array.isArray(q.options)) {
-          const optionLabels = ['A', 'B', 'C', 'D'];
+        const optionLabels = ['A', 'B', 'C', 'D'];
+        q.options?.forEach((option, optIndex) => {
+          if (optIndex < optionLabels.length) {
+            currentY = checkPageBreak(currentY, 15);
 
-          q.options.forEach((option, optIndex) => {
-            if (optIndex < optionLabels.length) {
-              currentY = checkPageBreak(currentY, 15);
+            const label = optionLabels[optIndex];
+            const text = option.text || option.option_text || `Option ${label}`;
+            const isCorrect = option.correct || option.is_correct;
 
-              const optionLabel = optionLabels[optIndex];
-              const optionText = option.text || option.option_text || `Option ${optionLabel}`;
-              const isCorrect = option.correct || option.is_correct;
-
-              // Highlight correct answer
-              if (isCorrect) {
-                doc.setFillColor(220, 255, 220); // Light green background
-                const textHeight = 6;
-                const textWidth = doc.getTextWidth(`${optionLabel}) ${optionText}`) + 10;
-                doc.rect(margin + 10, currentY - 4, Math.min(textWidth, maxWidth - 20), textHeight, 'F');
-              }
-
-              currentY = addWrappedText(
-                `${optionLabel}) ${optionText}`,
-                margin + 15,
-                currentY,
-                maxWidth - 20,
-                11,
-                isCorrect ? 'bold' : 'normal'
-              );
-
-              currentY += 2;
+            if (isCorrect) {
+              doc.setFillColor(220, 255, 220);
+              const textWidth = doc.getTextWidth(`${label}) ${text}`) + 10;
+              doc.rect(margin + 10, currentY - 4, Math.min(textWidth, maxWidth - 20), 6, 'F');
             }
-          });
-        }
 
-        // Add correct answer summary
+            currentY = addWrappedText(
+              `${label}) ${text}`,
+              margin + 15,
+              currentY,
+              maxWidth - 20,
+              11,
+              isCorrect ? 'bold' : 'normal'
+            );
+            currentY += 2;
+          }
+        });
+
         const correctOption = q.options?.find(o => o.correct || o.is_correct);
         if (correctOption) {
           currentY += 3;
           currentY = checkPageBreak(currentY, 10);
-
           const correctLabel = q.options.indexOf(correctOption);
-          const optionLabels = ['A', 'B', 'C', 'D'];
           const correctAnswer = `Correct Answer: ${optionLabels[correctLabel] || 'N/A'}`;
-
-          doc.setFillColor(255, 255, 200); // Light yellow background
+          doc.setFillColor(255, 255, 200);
           const answerWidth = doc.getTextWidth(correctAnswer) + 10;
           doc.rect(margin + 15, currentY - 4, Math.min(answerWidth, maxWidth - 30), 6, 'F');
-
-          currentY = addWrappedText(
-            correctAnswer,
-            margin + 20,
-            currentY,
-            maxWidth - 40,
-            10,
-            'bold'
-          );
+          currentY = addWrappedText(correctAnswer, margin + 20, currentY, maxWidth - 40, 10, 'bold');
         }
 
-        // Add explanation if available (uncomment if needed)
-        if (q.explanation) {
-          currentY += 5;
-          currentY = checkPageBreak(currentY, 15);
-
-          currentY = addWrappedText(
-            `Explanation: ${q.explanation}`,
-            margin + 15,
-            currentY,
-            maxWidth - 20,
-            10,
-            'italic'
-          );
-        }
-
-        // Add marks information
-        const marks = examData.marks_per_question;
+        const marks = q.marks || examData.marks_per_question || 1;
         currentY += 3;
         doc.setFontSize(9);
         doc.setFont(undefined, 'normal');
         doc.text(`[${marks} mark${marks !== 1 ? 's' : ''}]`, pageWidth - margin - 30, currentY);
 
-        // Add separator line
         currentY += 8;
         doc.setDrawColor(200, 200, 200);
         doc.line(margin, currentY, pageWidth - margin, currentY);
         currentY += 10;
       });
     } else {
-      // No questions available
-      currentY = addWrappedText(
-        'No questions available for this exam.',
-        margin,
-        currentY,
-        maxWidth,
-        12,
-        'italic'
-      );
+      currentY = addWrappedText('No questions available for this exam.', margin, currentY, maxWidth, 12, 'italic');
     }
 
-    // Add page numbers
+    // Page numbers
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.setFontSize(9);
-      doc.setFont(undefined, 'normal');
-      doc.text(
-        `Page ${i} of ${totalPages}`,
-        pageWidth - margin - 30,
-        pageHeight - 10
-      );
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 30, pageHeight - 10);
     }
 
-    // Generate filename
     const fileName = `${(examData.exam_name || 'exam').replace(/[^a-z0-9]/gi, '_')}_questions.pdf`;
 
     try {
@@ -304,6 +230,7 @@ const ExamPreview = ({ examData, isOpen, onClose, onSave }) => {
       });
     }
   };
+
 
 
   if (!examData) return null;

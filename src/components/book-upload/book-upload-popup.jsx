@@ -32,7 +32,7 @@ const schema = yup.object().shape({
     )
 });
 
-const BookUploadPopup = ({ isOpen, onOpenChange, onSubmit }) => {
+const BookUploadPopup = ({ isOpen, onOpenChange, triggerListApi }) => {
   const fileInputRef = useRef(null);
   const [uploadMode, setUploadMode] = useState('files'); // 'files' or 'folder'
   const [isSubmiting, setIsSubmiting] = useState(false); // 'files' or 'folder'
@@ -112,6 +112,7 @@ const BookUploadPopup = ({ isOpen, onOpenChange, onSubmit }) => {
         setIsSubmiting(false);
         onOpenChange();
         reset();
+        triggerListApi();
       }
     } catch (error) {
       setIsSubmiting(false);

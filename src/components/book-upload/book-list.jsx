@@ -192,7 +192,7 @@ const BookList = () => {
       </div>
 
       {
-        isOpenBookUploadPopup && <BookUploadPopup isOpen={isOpenBookUploadPopup} onOpenChange={handleBookUploadPopup}/>
+        isOpenBookUploadPopup && <BookUploadPopup isOpen={isOpenBookUploadPopup} onOpenChange={handleBookUploadPopup} triggerListApi={fetchBookTopicsandTitle} />
       }
     </div>
   );
