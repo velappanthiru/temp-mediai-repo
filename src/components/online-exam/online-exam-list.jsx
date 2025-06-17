@@ -38,10 +38,10 @@ const OnlineExamList = () => {
     switch (columnKey) {
 
       case 'exam_name':
-        return <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{item?.exam_name}</p>;
+        return <p className="text-sm font-medium whitespace-nowrap">{item?.exam_name}</p>;
 
       case 'book_name':
-        return <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{item?.book_name}</p>;
+        return <p className="text-sm font-medium whitespace-nowrap">{item?.book_name}</p>;
 
       case 'date':
         return (
